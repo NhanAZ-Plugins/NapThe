@@ -109,6 +109,7 @@ final class TrumTheAPI {
 		$partnerId = Constant::PARTNER_ID;
 		$partnerKey = Constant::PARTNER_KEY;
 
+		/** @phpstan-ignore-next-line */
 		if ($partnerId === "" || $partnerKey === "") {
 			throw new \InvalidArgumentException("Partner ID and Partner Key must be configured in src/Constant.php");
 		}

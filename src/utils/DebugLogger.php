@@ -36,7 +36,7 @@ class DebugLogger {
 	/** @var string Đường dẫn tới thư mục lưu log */
 	private string $logsDir;
 
-	public function __construct(private NapThe $plugin) {
+	public function __construct(NapThe $plugin) {
 		self::$instance = $this;
 		$this->logsDir = $plugin->getDataFolder() . "logs";
 		@mkdir($this->logsDir, 0755, true);
@@ -97,6 +97,7 @@ class DebugLogger {
 
 	/**
 	 * Log an API-related debug message with request/response data.
+	 */
 	public function logApi(
 		string $action,
 		array $request = [],

@@ -1,0 +1,8 @@
+parameters:
+	level: 4
+	paths:
+		- src
+	scanDirectories:
+		- ../../src
+	bootstrapFiles:
+		- ../../vendor/autoload.php

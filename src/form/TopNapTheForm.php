@@ -26,10 +26,10 @@ final class TopNapTheForm {
 
 	public function send(Player $player, int $page = 1) : void {
 		$this->plugin->debugLogger->log("Sending top napthe form to player: " . $player->getName() . ", page: " . $page, "form");
-		$player->sendForm($this->create($page));
+		$player->sendForm($this->create($player, $page));
 	}
 
-	private function create(int $page = 1) : SimpleForm {
+	private function create(Player $player, int $page = 1) : SimpleForm {
 		$form = new SimpleForm(function(Player $player, mixed $selection) use ($page) : void {
 			if ($selection === null) {
 				$this->plugin->debugLogger->log("TopNapThe form: Player " . $player->getName() . " closed the form", "form");
