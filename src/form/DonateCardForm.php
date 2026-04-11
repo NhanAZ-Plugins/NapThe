@@ -29,7 +29,7 @@ final class DonateCardForm {
 		$remainingTime = $this->cooldownTracker->getRemainingDonateCooldown($playerName, $currentTime);
 
 		if ($remainingTime > 0) {
-			$player->sendMessage(MessageTranslator::formatErrorMessage("Vui lÃ²ng Ä‘á»£i {$remainingTime} giÃ¢y trÆ°á»›c khi má»Ÿ form náº¡p tháº» láº¡i."));
+			$player->sendMessage(MessageTranslator::formatErrorMessage("Vui lòng đợi {$remainingTime} giây trước khi mở form nạp thẻ lại."));
 			$this->plugin->debugLogger->log("Form spam prevented - Player: {$playerName} tried to open donate form too quickly", "form");
 			return;
 		}
@@ -51,7 +51,7 @@ final class DonateCardForm {
 			$remainingTime = $this->cooldownTracker->getRemainingDonateCooldown($playerName, $currentTime);
 
 			if ($remainingTime > 0) {
-				$player->sendMessage(MessageTranslator::formatErrorMessage("Gá»­i quÃ¡ nhanh! Vui lÃ²ng Ä‘á»£i {$remainingTime} giÃ¢y trÆ°á»›c khi gá»­i láº¡i."));
+				$player->sendMessage(MessageTranslator::formatErrorMessage("Gửi quá nhanh! Vui lòng đợi {$remainingTime} giây trước khi gửi lại."));
 				$this->plugin->debugLogger->log("Form submission throttled - Player: {$playerName} tried to submit too quickly", "form");
 				return;
 			}
@@ -59,7 +59,7 @@ final class DonateCardForm {
 			$this->cooldownTracker->touchDonateCooldown($playerName, $currentTime);
 
 			if (!is_array($data)) {
-				$player->sendMessage(MessageTranslator::formatErrorMessage("CÃ³ lá»—i xáº£y ra khi xá»­ lÃ½ biá»ƒu máº«u!"));
+				$player->sendMessage(MessageTranslator::formatErrorMessage("Có lỗi xảy ra khi xử lý biểu mẫu!"));
 				return;
 			}
 
@@ -69,7 +69,7 @@ final class DonateCardForm {
 			$code = DataTypeUtils::toString($data["code"] ?? "");
 
 			if ($serial === "" || $code === "") {
-				$player->sendMessage(Constant::PREFIX . "Â§cVui lÃ²ng khÃ´ng Ä‘á»ƒ trá»‘ng sá»‘ sÃª-ri hoáº·c mÃ£ tháº»!");
+				$player->sendMessage(Constant::PREFIX . "§cVui lòng không để trống số sê-ri hoặc mã thẻ!");
 				$this->plugin->logger->info("[Donate/Form] Player " . $player->getName() . " submitted form with empty serial or code");
 				$this->plugin->debugLogger->log("Player {$player->getName()} submitted form with empty serial or code", "payment");
 				return;
@@ -96,7 +96,7 @@ final class DonateCardForm {
 			);
 
 			if ($response->isSuccessful() || $response->isPending()) {
-				$player->sendMessage(MessageTranslator::formatInfoMessage("Tháº» cá»§a báº¡n Ä‘ang Ä‘Æ°á»£c xá»­ lÃ½, vui lÃ²ng Ä‘á»£i..."));
+				$player->sendMessage(MessageTranslator::formatInfoMessage("Thẻ của bạn đang được xử lý, vui lòng đợi..."));
 				$this->plugin->debugLogger->log("Card processing started for {$player->getName()} - RequestID: $requestId", "payment");
 
 				if ($player->hasPermission("donate.admin")) {
@@ -109,7 +109,7 @@ final class DonateCardForm {
 			$message = $response->getMessage();
 
 			if (strpos($message, "card_existed") !== false) {
-				$player->sendMessage(MessageTranslator::formatErrorMessage("Tháº» nÃ y Ä‘Ã£ Ä‘Æ°á»£c sá»­ dá»¥ng trÆ°á»›c Ä‘Ã³"));
+				$player->sendMessage(MessageTranslator::formatErrorMessage("Thẻ này đã được sử dụng trước đó"));
 			} else {
 				$player->sendMessage(MessageTranslator::formatErrorMessage($message));
 			}
@@ -117,11 +117,11 @@ final class DonateCardForm {
 			$this->plugin->debugLogger->log("Card processing failed immediately for {$player->getName()} - Reason: {$response->getMessage()}", "payment");
 		});
 
-		$form->setTitle("Náº¡p Tháº»")
-			->addDropdown("Loáº¡i tháº»", Constant::TELCO_DISPLAY, 0, "telco")
-			->addDropdown("Má»‡nh giÃ¡", Constant::AMOUNT_DISPLAY, 0, "amount")
-			->addInput("Sá»‘ sÃª-ri", "VÃ­ dá»¥: 10004783347874", null, "serial")
-			->addInput("MÃ£ tháº»", "VÃ­ dá»¥: 312821445892982", null, "code");
+		$form->setTitle("Nạp Thẻ")
+			->addDropdown("Loại thẻ", Constant::TELCO_DISPLAY, 0, "telco")
+			->addDropdown("Mệnh giá", Constant::AMOUNT_DISPLAY, 0, "amount")
+			->addInput("Số sê-ri", "Ví dụ: 10004783347874", null, "serial")
+			->addInput("Mã thẻ", "Ví dụ: 312821445892982", null, "code");
 
 		return $form;
 	}

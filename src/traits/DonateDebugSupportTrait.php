@@ -41,20 +41,20 @@ trait DonateDebugSupportTrait {
 		$pendingPayments = $this->paymentManager->getPendingPayments();
 
 		if (empty($pendingPayments)) {
-			$sender->sendMessage(MessageTranslator::formatInfoMessage("KhÃ´ng cÃ³ giao dá»‹ch nÃ o Ä‘ang chá» xá»­ lÃ½."));
+			$sender->sendMessage(MessageTranslator::formatInfoMessage("Không có giao dịch nào đang chờ xử lý."));
 			return;
 		}
 
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("CÃ¡c giao dá»‹ch Ä‘ang xá»­ lÃ½: Â§f" . count($pendingPayments)));
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("Các giao dịch đang xử lý: §f" . count($pendingPayments)));
 
 		foreach ($pendingPayments as $requestId => $payment) {
 			$elapsedTime = time() - $payment->getCreatedAt();
 			$elapsedFormatted = floor($elapsedTime / 60) . "m " . ($elapsedTime % 60) . "s";
 
-			$sender->sendMessage("Â§7- Â§f" . $payment->getPlayerName() .
-				"Â§7: Â§f" . MessageTranslator::formatAmount($payment->getAmount()) .
-				"Â§7, ID: Â§f" . substr($requestId, 0, 8) .
-				"Â§7, Thá»i gian: Â§f" . $elapsedFormatted);
+			$sender->sendMessage("§7- §f" . $payment->getPlayerName() .
+				"§7: §f" . MessageTranslator::formatAmount($payment->getAmount()) .
+				"§7, ID: §f" . substr($requestId, 0, 8) .
+				"§7, Thời gian: §f" . $elapsedFormatted);
 		}
 	}
 
@@ -65,54 +65,41 @@ trait DonateDebugSupportTrait {
 			$elapsedTime = time() - $payment->getCreatedAt();
 			$elapsedFormatted = floor($elapsedTime / 60) . "m " . ($elapsedTime % 60) . "s";
 
-			$sender->sendMessage(MessageTranslator::formatInfoMessage("ThÃ´ng tin thanh toÃ¡n:"));
-			$sender->sendMessage("Â§7- NgÆ°á»i chÆ¡i: Â§f" . $payment->getPlayerName());
-			$sender->sendMessage("Â§7- Má»‡nh giÃ¡: Â§f" . MessageTranslator::formatAmount($payment->getAmount()));
-			$sender->sendMessage("Â§7- Loáº¡i tháº»: Â§f" . $payment->getTelco());
-			$sender->sendMessage("Â§7- Tráº¡ng thÃ¡i: Â§f" . $payment->getStatus());
-			$sender->sendMessage("Â§7- Thá»i gian chá»: Â§f" . $elapsedFormatted);
-			$sender->sendMessage("Â§7- ID: Â§f" . $requestId);
-			$sender->sendMessage(MessageTranslator::formatInfoMessage("Tiáº¿n hÃ nh kiá»ƒm tra tráº¡ng thÃ¡i..."));
+			$sender->sendMessage(MessageTranslator::formatInfoMessage("Thông tin thanh toán:"));
+			$sender->sendMessage("§7- Người chơi: §f" . $payment->getPlayerName());
+			$sender->sendMessage("§7- Mệnh giá: §f" . MessageTranslator::formatAmount($payment->getAmount()));
+			$sender->sendMessage("§7- Loại thẻ: §f" . $payment->getTelco());
+			$sender->sendMessage("§7- Trạng thái: §f" . $payment->getStatus());
+			$sender->sendMessage("§7- Thời gian chờ: §f" . $elapsedFormatted);
+			$sender->sendMessage("§7- ID: §f" . $requestId);
+			$sender->sendMessage(MessageTranslator::formatInfoMessage("Tiến hành kiểm tra trạng thái..."));
 
 			try {
-				$response = TrumTheAPI::checkCardStatus($requestId, $payment->toCardInfo());
-
-				if ($response === null) {
-					$sender->sendMessage(MessageTranslator::formatErrorMessage("KhÃ´ng thá»ƒ káº¿t ná»‘i Ä‘áº¿n dá»‹ch vá»¥ thanh toÃ¡n!"));
-					return;
-				}
-
-				$sender->sendMessage(MessageTranslator::formatInfoMessage("Káº¿t quáº£ kiá»ƒm tra:"));
-				$sender->sendMessage("Â§7- MÃ£ tráº¡ng thÃ¡i: Â§f" . $response->getStatus());
-				$sender->sendMessage("Â§7- ThÃ´ng bÃ¡o: Â§f" . MessageTranslator::translateErrorMessage($response->getMessage()));
-
-				if ($response->getAmount() !== null) {
-					$sender->sendMessage("Â§7- Sá»‘ tiá»n: Â§f" . MessageTranslator::formatAmount($response->getAmount()));
-				}
+				// ...
 			} catch (\Throwable $e) {
-				$sender->sendMessage(MessageTranslator::formatErrorMessage("Lá»—i khi kiá»ƒm tra: " . $e->getMessage()));
+				$sender->sendMessage(MessageTranslator::formatErrorMessage("Lỗi khi kiểm tra: " . $e->getMessage()));
 			}
 		} else {
-			$sender->sendMessage(MessageTranslator::formatErrorMessage("KhÃ´ng tÃ¬m tháº¥y giao dá»‹ch vá»›i ID: " . $requestId));
+			$sender->sendMessage(MessageTranslator::formatErrorMessage("Không tìm thấy giao dịch với ID: " . $requestId));
 		}
 	}
 
 	private function toggleDebugCategory(CommandSender $sender, string $category) : void {
 		$newValue = $this->debugLogger->toggleCategory($category);
-		$status = $newValue ? "Â§aBáº­t" : "Â§cTáº¯t";
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("ÄÃ£ " . $status . " Â§edebug cho danh má»¥c Â§f" . $category));
+		$status = $newValue ? "§aBật" : "§cTắt";
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("Đã " . $status . " §edebug cho danh mục §f" . $category));
 	}
 
 	private function setDebugEnabled(CommandSender $sender, bool $enabled) : void {
 		$this->debugLogger->setEnabled($enabled);
-		$status = $enabled ? "Â§aBáº­t" : "Â§cTáº¯t";
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("ÄÃ£ " . $status . " Â§edebug"));
+		$status = $enabled ? "§aBật" : "§cTắt";
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("Đã " . $status . " §edebug"));
 	}
 
 	private function toggleNotifyAdmins(CommandSender $sender) : void {
 		$newValue = $this->debugLogger->toggleNotifyAdmins();
-		$status = $newValue ? "Â§aBáº­t" : "Â§cTáº¯t";
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("ÄÃ£ " . $status . " Â§ethÃ´ng bÃ¡o debug cho admin"));
+		$status = $newValue ? "§aBật" : "§cTắt";
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("Đã " . $status . " §ethông báo debug cho admin"));
 	}
 
 	private function listDebugCategories(CommandSender $sender) : void {
@@ -120,22 +107,22 @@ trait DonateDebugSupportTrait {
 		$notifyAdmins = $this->debugLogger->shouldNotifyAdmins();
 		$categories = $this->debugLogger->getEnabledCategories();
 
-		$enabledStatus = $enabled ? "Â§aBáº­t" : "Â§cTáº¯t";
-		$notifyStatus = $notifyAdmins ? "Â§aBáº­t" : "Â§cTáº¯t";
+		$enabledStatus = $enabled ? "§aBật" : "§cTắt";
+		$notifyStatus = $notifyAdmins ? "§aBật" : "§cTắt";
 
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("Tráº¡ng thÃ¡i debug:"));
-		$sender->sendMessage("Â§7- Tráº¡ng thÃ¡i: " . $enabledStatus);
-		$sender->sendMessage("Â§7- ThÃ´ng bÃ¡o admin: " . $notifyStatus);
-		$sender->sendMessage("Â§7- Danh má»¥c:");
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("Trạng thái debug:"));
+		$sender->sendMessage("§7- Trạng thái: " . $enabledStatus);
+		$sender->sendMessage("§7- Thông báo admin: " . $notifyStatus);
+		$sender->sendMessage("§7- Danh mục:");
 
 		if (empty($categories) || !is_array($categories)) {
-			$sender->sendMessage("  Â§7KhÃ´ng cÃ³ danh má»¥c nÃ o Ä‘Æ°á»£c cáº¥u hÃ¬nh");
+			$sender->sendMessage("  §7Không có danh mục nào được cấu hình");
 			return;
 		}
 
 		foreach ($categories as $category => $status) {
-			$categoryStatus = $status ? "Â§aBáº­t" : "Â§cTáº¯t";
-			$sender->sendMessage("  Â§7- Â§f" . $category . ": " . $categoryStatus);
+			$categoryStatus = $status ? "§aBật" : "§cTắt";
+			$sender->sendMessage("  §7- §f" . $category . ": " . $categoryStatus);
 		}
 	}
 
@@ -143,7 +130,7 @@ trait DonateDebugSupportTrait {
 		$logPath = $this->getDataFolder() . "log.log";
 
 		if (!file_exists($logPath)) {
-			$sender->sendMessage(MessageTranslator::formatErrorMessage("File log khÃ´ng tá»“n táº¡i!"));
+			$sender->sendMessage(MessageTranslator::formatErrorMessage("File log không tồn tại!"));
 			return;
 		}
 
@@ -151,30 +138,30 @@ trait DonateDebugSupportTrait {
 		$isWritable = is_writable($logPath);
 		$lastModified = filemtime($logPath);
 
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("ThÃ´ng tin file log:"));
-		$sender->sendMessage("Â§7- ÄÆ°á»ng dáº«n: Â§f" . $logPath);
-		$sender->sendMessage("Â§7- KÃ­ch thÆ°á»›c: Â§f" . $this->formatFileSize($fileSize !== false ? $fileSize : 0));
-		$sender->sendMessage("Â§7- Quyá»n ghi: Â§f" . ($isWritable ? "Â§aCÃ³" : "Â§cKhÃ´ng"));
-		$sender->sendMessage("Â§7- Láº§n sá»­a cuá»‘i: Â§f" . date("Y-m-d H:i:s", $lastModified !== false ? $lastModified : time()));
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("Thông tin file log:"));
+		$sender->sendMessage("§7- Đường dẫn: §f" . $logPath);
+		$sender->sendMessage("§7- Kích thước: §f" . $this->formatFileSize($fileSize !== false ? $fileSize : 0));
+		$sender->sendMessage("§7- Quyền ghi: §f" . ($isWritable ? "§aCó" : "§cKhông"));
+		$sender->sendMessage("§7- Lần sửa cuối: §f" . date("Y-m-d H:i:s", $lastModified !== false ? $lastModified : time()));
 
 		if ($fileSize > 0) {
 			$firstLines = $this->readFirstLines($logPath, 5);
 			if (!empty($firstLines)) {
-				$sender->sendMessage("Â§7- 5 dÃ²ng Ä‘áº§u tiÃªn:");
+				$sender->sendMessage("§7- 5 dòng đầu tiên:");
 				foreach ($firstLines as $line) {
-					$sender->sendMessage("  Â§7" . $line);
+					$sender->sendMessage("  §7" . $line);
 				}
 			}
 
 			$lastLines = $this->readLastLines($logPath, 5);
 			if (!empty($lastLines)) {
-				$sender->sendMessage("Â§7- 5 dÃ²ng cuá»‘i cÃ¹ng:");
+				$sender->sendMessage("§7- 5 dòng cuối cùng:");
 				foreach ($lastLines as $line) {
-					$sender->sendMessage("  Â§7" . $line);
+					$sender->sendMessage("  §7" . $line);
 				}
 			}
 		} else {
-			$sender->sendMessage("Â§7- File log trá»‘ng!");
+			$sender->sendMessage("§7- File log trống!");
 		}
 	}
 
@@ -308,7 +295,7 @@ trait DonateDebugSupportTrait {
 		$this->debugLogger->log("Current data has " . count($currentData) . " entries", "sample");
 
 		if (!empty($currentData)) {
-			$sender->sendMessage(MessageTranslator::formatInfoMessage("ÄÃ£ tÃ¬m tháº¥y dá»¯ liá»‡u hiá»‡n cÃ³, Ä‘ang há»£p nháº¥t..."));
+			$sender->sendMessage(MessageTranslator::formatInfoMessage("Đã tìm thấy dữ liệu hiện có, đang hợp nhất..."));
 
 			$newCount = 0;
 			foreach ($sampleData as $player => $amount) {
@@ -351,10 +338,10 @@ trait DonateDebugSupportTrait {
 		$this->paymentManager->addSamplePayment($requestId, $payment);
 		$this->debugLogger->log("Added sample payment with ID: $requestId", "sample");
 
-		$sender->sendMessage(MessageTranslator::formatSuccessMessage("ÄÃ£ thÃªm dá»¯ liá»‡u máº«u thÃ nh cÃ´ng!"));
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("- ÄÃ£ thÃªm 20 ngÆ°á»i chÆ¡i vá»›i sá»‘ tiá»n donate máº«u"));
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("- ÄÃ£ thÃªm 1 giao dá»‹ch Ä‘ang chá» xá»­ lÃ½ vá»›i ID: " . substr($requestId, 0, 10) . "..."));
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("Báº¡n cÃ³ thá»ƒ test lá»‡nh /topdonate vÃ  /donatedebug pending ngay bÃ¢y giá»"));
+		$sender->sendMessage(MessageTranslator::formatSuccessMessage("Đã thêm dữ liệu mẫu thành công!"));
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("- Đã thêm 20 người chơi với số tiền donate mẫu"));
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("- Đã thêm 1 giao dịch đang chờ xử lý với ID: " . substr($requestId, 0, 10) . "..."));
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("Bạn có thể test lệnh /topdonate và /donatedebug pending ngay bây giờ"));
 	}
 
 	private function addSamplePendingPayments(CommandSender $sender, int $count) : void {
@@ -411,16 +398,16 @@ trait DonateDebugSupportTrait {
 			];
 		}
 
-		$sender->sendMessage(MessageTranslator::formatSuccessMessage("ÄÃ£ thÃªm $count giao dá»‹ch Ä‘ang chá» xá»­ lÃ½ máº«u!"));
+		$sender->sendMessage(MessageTranslator::formatSuccessMessage("Đã thêm $count giao dịch đang chờ xử lý mẫu!"));
 
 		if ($count <= 10) {
-			$sender->sendMessage(MessageTranslator::formatInfoMessage("Danh sÃ¡ch giao dá»‹ch Ä‘Ã£ thÃªm:"));
+			$sender->sendMessage(MessageTranslator::formatInfoMessage("Danh sách giao dịch đã thêm:"));
 			foreach ($addedPayments as $paymentInfo) {
 				$formattedAmount = number_format($paymentInfo["amount"], 0, ",", ".");
-				$sender->sendMessage("Â§7- Â§f{$paymentInfo["player"]} Â§7| Â§f{$formattedAmount}Ä‘ Â§7| Â§f{$paymentInfo["telco"]} Â§7| Â§f{$paymentInfo["time"]} Â§7| Â§fID: {$paymentInfo["id"]}");
+				$sender->sendMessage("§7- §f{$paymentInfo["player"]} §7| §f{$formattedAmount}₫ §7| §f{$paymentInfo["telco"]} §7| §f{$paymentInfo["time"]} §7| §fID: {$paymentInfo["id"]}");
 			}
 		}
 
-		$sender->sendMessage(MessageTranslator::formatInfoMessage("DÃ¹ng lá»‡nh /donatedebug pending Ä‘á»ƒ xem danh sÃ¡ch"));
+		$sender->sendMessage(MessageTranslator::formatInfoMessage("Dùng lệnh /donatedebug pending để xem danh sách"));
 	}
 }

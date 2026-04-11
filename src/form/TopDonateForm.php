@@ -58,7 +58,7 @@ final class TopDonateForm {
 						$this->send($player, $currentPage - 1);
 					} else {
 						$this->plugin->debugLogger->log("TopDonate form: Attempted to go to previous page while on first page", "form");
-						$player->sendTip(Constant::PREFIX . "Â§eÄÃ¢y lÃ  trang Ä‘áº§u tiÃªn rá»“i.");
+						$player->sendTip(Constant::PREFIX . "§eĐây là trang đầu tiên rồi.");
 						$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($player) : void {
 							if ($player->isOnline()) {
 								$this->plugin->debugLogger->log("TopDonate form: Reopening first page after delay", "form");
@@ -74,7 +74,7 @@ final class TopDonateForm {
 						$this->send($player, $currentPage + 1);
 					} else {
 						$this->plugin->debugLogger->log("TopDonate form: Attempted to go to next page while on last page", "form");
-						$player->sendTip(Constant::PREFIX . "Â§eÄÃ¢y lÃ  trang cuá»‘i rá»“i.");
+						$player->sendTip(Constant::PREFIX . "§eĐây là trang cuối rồi.");
 						$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($player, $maxPage) : void {
 							if ($player->isOnline()) {
 								$this->plugin->debugLogger->log("TopDonate form: Reopening last page after delay", "form");
@@ -101,9 +101,9 @@ final class TopDonateForm {
 		if (empty($donateData)) {
 			$this->plugin->debugLogger->log("TopDonate form: No donation data found, showing empty message", "form");
 			return $form
-				->setTitle("Â§lÂ§fâ€¢ Â§8[Â§6Xáº¿p Háº¡ng DonateÂ§8] Â§fâ€¢")
-				->setContent("Â§cHiá»‡n chÆ°a cÃ³ má»™t ai náº¡p tháº» á»§ng há»™ mÃ¡y chá»§...")
-				->addButton("Â§lÂ§8Â« Â§cÄÃ³ng Â§8Â»", -1, "", "close");
+				->setTitle("§l§f• §8[§6Xếp Hạng Donate§8] §f•")
+				->setContent("§cHiện chưa có một ai nạp thẻ ủng hộ máy chủ...")
+				->addButton("§l§8« §cĐóng §8»", -1, "", "close");
 		}
 
 		arsort($donateData);
@@ -127,23 +127,23 @@ final class TopDonateForm {
 			if ($i >= $startIndex && $i < $startIndex + $itemsPerPage) {
 				$rank = $i + 1;
 				$formattedAmount = number_format($amountValue, 0, ",", ".");
-				$topList[] = "Â§lÂ§f$rank. Â§e$playerName: Â§a{$formattedAmount}â‚«";
+				$topList[] = "§l§f$rank. §e$playerName: §a{$formattedAmount}₫";
 			}
 
 			$i++;
 		}
 
 		$formattedTotal = number_format($serverTotalDonated, 0, ",", ".");
-		$content = "Â§lÂ§6â€¢ Â§fBáº£ng xáº¿p háº¡ng donate trang Â§a" . $page . "Â§f/Â§a" . $maxPage . " Â§6â€¢\n\n";
+		$content = "§l§6• §fBảng xếp hạng donate trang §a" . $page . "§f/§a" . $maxPage . " §6•\n\n";
 		$content .= implode("\n", $topList);
-		$content .= "\n\nÂ§lÂ§6â€¢ Â§fTá»•ng sá»‘ tiá»n náº¡p tháº» tá»« ngÆ°á»i chÆ¡i: Â§a{$formattedTotal}â‚« Â§6â€¢";
+		$content .= "\n\n§l§6• §fTổng số tiền nạp thẻ từ người chơi: §a{$formattedTotal}₫ §6•";
 
-		$form->setTitle("Â§lÂ§fâ€¢ Â§8[Â§6Xáº¿p Háº¡ng DonateÂ§8] Â§fâ€¢")
+		$form->setTitle("§l§f• §8[§6Xếp Hạng Donate§8] §f•")
 			->setContent($content)
-			->addButton($page > 1 ? "Â§lÂ§8Â« Â§aTrang TrÆ°á»›c" : "Â§lÂ§8Â« Â§0Trang TrÆ°á»›c", -1, "", "prev")
-			->addButton("Â§lÂ§8Â« Â§cÄÃ³ng Â§8Â»", -1, "", "close")
-			->addButton($page < $maxPage ? "Â§lÂ§aTrang Sau Â§8Â»" : "Â§lÂ§0Trang Sau Â§8Â»", -1, "", "next")
-			->addButton("Â§lÂ§8Â« Â§eNháº­p Sá»‘ Trang Â§8Â»", -1, "", "goto");
+			->addButton($page > 1 ? "§l§8« §aTrang Trước" : "§l§8« §0Trang Trước", -1, "", "prev")
+			->addButton("§l§8« §cĐóng §8»", -1, "", "close")
+			->addButton($page < $maxPage ? "§l§aTrang Sau §8»" : "§l§0Trang Sau §8»", -1, "", "next")
+			->addButton("§l§8« §eNhập Số Trang §8»", -1, "", "goto");
 
 		return $form;
 	}
@@ -165,14 +165,14 @@ final class TopDonateForm {
 			$this->plugin->debugLogger->log("GoToPage form: Player " . $player->getName() . " entered page: " . $pageInput, "form");
 
 			if (!is_numeric($pageInput)) {
-				$player->sendMessage(Constant::PREFIX . "Â§cVui lÃ²ng nháº­p má»™t sá»‘ há»£p lá»‡!");
+				$player->sendMessage(Constant::PREFIX . "§cVui lòng nhập một số hợp lệ!");
 				$this->send($player, $currentPage);
 				return;
 			}
 
 			$pageNumber = (int) $pageInput;
 			if ($pageNumber < 1 || $pageNumber > $maxPage) {
-				$player->sendMessage(Constant::PREFIX . "Â§cSá»‘ trang pháº£i tá»« 1 Ä‘áº¿n {$maxPage}!");
+				$player->sendMessage(Constant::PREFIX . "§cSố trang phải từ 1 đến {$maxPage}!");
 				$this->send($player, $currentPage);
 				return;
 			}
@@ -181,9 +181,9 @@ final class TopDonateForm {
 			$this->send($player, $pageNumber);
 		});
 
-		$form->setTitle("Â§lÂ§fâ€¢ Â§8[Â§6Chuyá»ƒn TrangÂ§8] Â§fâ€¢")
-			->addLabel("Â§fNháº­p sá»‘ trang báº¡n muá»‘n xem (1-{$maxPage}):", "info")
-			->addInput("Sá»‘ trang", "Nháº­p sá»‘ tá»« 1 Ä‘áº¿n {$maxPage}", null, "page");
+		$form->setTitle("§l§f• §8[§6Chuyển Trang§8] §f•")
+			->addLabel("§fNhập số trang bạn muốn xem (1-{$maxPage}):", "info")
+			->addInput("Số trang", "Nhập số từ 1 đến {$maxPage}", null, "page");
 
 		$player->sendForm($form);
 	}

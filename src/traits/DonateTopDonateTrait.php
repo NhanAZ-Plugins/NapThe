@@ -18,7 +18,7 @@ trait DonateTopDonateTrait {
 	private function showTopDonators(CommandSender $sender, int $page) : void {
 		$donateData = $this->donateData->getAll();
 		if (empty($donateData)) {
-			$sender->sendMessage(Constant::PREFIX . "Hiá»‡n chÆ°a cÃ³ má»™t ai náº¡p tháº» á»§ng há»™ mÃ¡y chá»§...");
+			$sender->sendMessage(Constant::PREFIX . "Hiện chưa có một ai nạp thẻ ủng hộ máy chủ...");
 			return;
 		}
 
@@ -29,7 +29,7 @@ trait DonateTopDonateTrait {
 		$maxPage = ceil($totalPlayers / $itemsPerPage);
 		$page = min($maxPage, $page);
 
-		$sender->sendMessage(Constant::PREFIX . "--- Báº£ng xáº¿p háº¡ng náº¡p tháº» trang $page/$maxPage (/topdonate <trang>) ---");
+		$sender->sendMessage(Constant::PREFIX . "--- Bảng xếp hạng nạp thẻ trang $page/$maxPage (/topdonate <trang>) ---");
 
 		$startIndex = ($page - 1) * $itemsPerPage;
 		$i = 0;
@@ -47,17 +47,17 @@ trait DonateTopDonateTrait {
 			if ($i >= $startIndex && $i < $startIndex + $itemsPerPage) {
 				$rank = $i + 1;
 				$formattedAmount = number_format($amountValue, 0, ".", ".");
-				$sender->sendMessage("$rank. $playerName: {$formattedAmount}â‚«");
+				$sender->sendMessage("$rank. $playerName: {$formattedAmount}₫");
 			}
 
 			$i++;
 		}
 
 		if ($sender instanceof Player && $senderRank > 0) {
-			$sender->sendMessage(Constant::PREFIX . "Xáº¿p háº¡ng cá»§a báº¡n lÃ  $senderRank");
+			$sender->sendMessage(Constant::PREFIX . "Xếp hạng của bạn là $senderRank");
 		}
 
 		$formattedTotal = number_format($serverTotalDonated, 0, ".", ".");
-		$sender->sendMessage(Constant::PREFIX . "Tá»•ng sá»‘ tiá»n náº¡p tháº» tá»« ngÆ°á»i chÆ¡i cá»§a mÃ¡y chá»§ lÃ : {$formattedTotal}â‚«");
+		$sender->sendMessage(Constant::PREFIX . "Tổng số tiền nạp thẻ từ người chơi của máy chủ là: {$formattedTotal}₫");
 	}
 }
