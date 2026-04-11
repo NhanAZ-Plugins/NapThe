@@ -8,12 +8,12 @@ namespace NapThe\payment;
  * Payment status constants
  */
 final class PaymentStatus {
-	/** Payment is pending processing */
+	/** Thanh toán đang chờ xử lý */
 	public const PENDING = "pending";
 
-	/** Payment completed successfully */
+	/** Thanh toán thành công */
 	public const SUCCESSFUL = "successful";
 
-	/** Payment failed */
+	/** Thanh toán thất bại */
 	public const FAILED = "failed";
 }

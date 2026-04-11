@@ -40,12 +40,12 @@ class NapThe extends PluginBase {
 	protected function onLoad() : void {
 		self::setInstance($this);
 
-		// Prepare plugin directory
+		// Chuẩn bị thư mục của plugin
 		@mkdir($this->getDataFolder());
 	}
 
 	protected function onEnable() : void {
-		// Check PHP version
+		// Kiểm tra phiên bản PHP
 		if (version_compare(PHP_VERSION, '8.2.0', '<')) {
 			$this->getLogger()->error("Plugin require PHP 8.2.0 or higher. Current version: " . PHP_VERSION);
 			$this->getServer()->getPluginManager()->disablePlugin($this);
@@ -56,28 +56,28 @@ class NapThe extends PluginBase {
 
 		$this->napTheData = new Config($this->getDataFolder() . "naptheData.yml", Config::YAML);
 
-		// Initialize debug logger (file-only, daily log files)
+		// Khởi tạo hệ thống ghi lỗi vào tệp (file-only, daily log files)
 		$this->debugLogger = new DebugLogger($this);
 
-		// Check for valid API credentials
+		// Kiểm tra tài khoản API có hợp lệ không
 		if (Constant::PARTNER_ID === "" || Constant::PARTNER_KEY === "") {
 			$this->getLogger()->error("Vui lòng cấu hình partner_id và partner_key trong src/Constant.php!");
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
 
-		// Initialize managers
+		// Khởi tạo các trình quản lý
 		$this->formManager = new FormManager($this);
 		$this->paymentManager = new PaymentManager($this);
 
-		// Start the payment checking task
+		// Bắt đầu tiến trình kiểm tra thanh toán
 		$this->paymentManager->startPaymentCheckTask();
 
 		$this->debugLogger->log("Plugin enabled successfully", "general");
 	}
 
 	protected function onDisable() : void {
-		// Save any pending data
+		// Lưu các dữ liệu còn đang chờ
 		if (isset($this->napTheData)) {
 			$this->napTheData->save();
 		}
@@ -90,7 +90,7 @@ class NapThe extends PluginBase {
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool {
 		$commandName = $command->getName();
 
-		// Log command usage to file
+		// Ghi nhật ký sử dụng lệnh
 		$senderName = $sender instanceof Player ? $sender->getName() : "Console";
 		$argsString = !empty($args) ? " " . implode(" ", $args) : "";
 		$this->debugLogger->log("Command executed: $senderName used /$commandName$argsString", "command");
@@ -242,22 +242,22 @@ class NapThe extends PluginBase {
 	public function successfulDonation(string $playerName, int $amount) : void {
 		$formattedAmount = utils\MessageTranslator::formatAmount($amount);
 
-		// Broadcast donation message
+		// Gửi thông báo nạp thẻ trên toàn server
 		$this->getServer()->broadcastMessage(utils\MessageTranslator::formatSuccessMessage("Người chơi $playerName đã nạp {$formattedAmount} để ủng hộ máy chủ!"));
 
-		// Update player statistics safely
+		// Cập nhật thống kê người chơi an toàn
 		$currentAmount = $this->napTheData->getNested($playerName, 0);
 		$safeAmount = is_numeric($currentAmount) ? (int) $currentAmount : 0;
 		$this->napTheData->setNested($playerName, $safeAmount + $amount);
 		$this->napTheData->save();
 
-		// Calculate bonus amount
+		// Tính toán số tiền khuyến mãi
 		$bonusAmount = (int) ($amount * Constant::BONUS);
 
-		// Add any additional reward code here
+		// Thêm phần thưởng phụ (ví dụ xu, vật phẩm) tại đây
 		// Example: EconomyAPI::getInstance()->addMoney($playerName, $bonusAmount);
 
-		// Notify player if online
+		// Thông báo nếu người chơi đang online
 		$player = $this->getServer()->getPlayerExact($playerName);
 		if ($player !== null) {
 			$player->sendMessage(utils\MessageTranslator::formatSuccessMessage("Chân thành cảm ơn bạn đã ủng hộ máy chủ {$formattedAmount}!"));

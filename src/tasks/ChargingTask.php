@@ -33,10 +33,10 @@ class ChargingTask extends AsyncTask {
 	}
 
 	public function onRun() : void {
-		// The synchronous payment flow now lives in PaymentManager + payment services.
-		// This async task only carries request metadata back to the main thread.
+		// Luồng thanh toán đồng bộ hiện được xử lý trong PaymentManager + payment services.
+		// Task bất đồng bộ này chỉ mang siêu dữ liệu trả về luồng chính.
 
-		// Store the result to be accessed in onCompletion
+		// Lưu kết quả để sử dụng trong onCompletion
 		$this->setResult([
 			'playerName' => $this->playerName,
 			'telco' => $this->telco,
@@ -55,10 +55,10 @@ class ChargingTask extends AsyncTask {
 
 		$playerName = is_string($data['playerName']) ? $data['playerName'] : '';
 
-		// Get the player who initiated the charge
+		// Lấy người chơi đã thực hiện nạp thẻ
 		$player = Server::getInstance()->getPlayerExact($playerName);
 
-		// If player is still online, inform them about the next step
+		// Nếu người chơi đang online, thông báo cho họ bước tiếp theo
 		if ($player !== null) {
 			$player->sendMessage(Constant::PREFIX . "Thẻ của bạn đang được xử lý. Vui lòng đợi, bạn sẽ nhận được thông báo khi quá trình hoàn tất.");
 		}

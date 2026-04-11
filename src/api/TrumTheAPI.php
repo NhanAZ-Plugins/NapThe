@@ -35,7 +35,7 @@ final class TrumTheAPI {
 	 * @param int $seconds Number of seconds between API requests
 	 */
 	public static function setApiCooldown(int $seconds) : void {
-		self::$apiCooldown = max(1, $seconds); // Minimum 1 second
+		self::$apiCooldown = max(1, $seconds); // Tối thiểu 1 giây
 	}
 
 	/**
@@ -57,7 +57,7 @@ final class TrumTheAPI {
 		$serverIp = $server->getIp();
 		$currentTime = time();
 
-		// Use server IP as the key for tracking
+		// Dùng IP máy chủ làm khoá theo dõi
 		$key = $serverIp . '_' . $requestType;
 
 		if (isset(self::$lastApiRequests[$key])) {
@@ -70,7 +70,7 @@ final class TrumTheAPI {
 			}
 		}
 
-		// Update last request time
+		// Cập nhật thời gian request cuối
 		self::$lastApiRequests[$key] = $currentTime;
 		return true;
 	}
@@ -98,7 +98,7 @@ final class TrumTheAPI {
 	) : ?ChargeResponse {
 		$plugin = NapThe::getInstance();
 
-		// Check rate limiting
+		// Kiểm tra giới hạn gọi API
 		if (!self::canMakeApiRequest('charge')) {
 			return new ChargeResponse(
 				-1,
@@ -126,7 +126,7 @@ final class TrumTheAPI {
 			"command" => "charging"
 		];
 
-		// Log API request (masked sensitive data)
+		// Ghi log yêu cầu API (đã ẩn dữ liệu nhạy cảm)
 		$debugData = $data;
 		$debugData["code"] = substr($code, 0, 2) . "****" . substr($code, -2);
 		$debugData["serial"] = substr($serial, 0, 4) . "****" . substr($serial, -4);
@@ -145,11 +145,11 @@ final class TrumTheAPI {
 			return null;
 		}
 
-		// Log the API response
+		// Ghi log phản hồi từ API
 		$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
 		$plugin->debugLogger->logApi("CHARGE_RESPONSE", [], $responseDataTyped);
 
-		// Special log for PENDING status
+		// Ghi log đặc biệt cho trạng thái ĐANG XỬ LÝ (PENDING)
 		if (isset($responseData['message']) && $responseData['message'] === "PENDING") {
 			$plugin->debugLogger->log("Card with RequestID: $requestId is PENDING processing (status 99 with PENDING message). This is expected behavior.", "api");
 		}
@@ -175,7 +175,7 @@ final class TrumTheAPI {
 	public static function checkCardStatus(string $requestId, ?array $cardInfo = null) : ?ChargeStatusResponse {
 		$plugin = NapThe::getInstance();
 
-		// Check rate limiting
+		// Kiểm tra giới hạn gọi API
 		if (!self::canMakeApiRequest('status')) {
 			return new ChargeStatusResponse(
 				-1,
@@ -214,7 +214,7 @@ final class TrumTheAPI {
 			$data['sign'] = md5($partnerKey . $requestId);
 		}
 
-		// Log API status check request
+		// Ghi log yêu cầu kiểm tra trạng thái API
 		$debugData = $data;
 		$signStr = DataTypeUtils::toString($debugData["sign"]);
 		$debugData["sign"] = substr($signStr, 0, 8) . "...";
@@ -240,7 +240,7 @@ final class TrumTheAPI {
 			return null;
 		}
 
-		// Log the API response
+		// Ghi log phản hồi từ API
 		$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
 		$plugin->debugLogger->logApi("STATUS_RESPONSE", [], $responseDataTyped);
 
@@ -265,7 +265,7 @@ final class TrumTheAPI {
 			$apiUrl = Constant::URL;
 			$timeout = max(1, Constant::API_TIMEOUT);
 
-			// JSON encode the data for POST request
+			// Mã hoá dữ liệu JSON cho POST request
 			$jsonData = json_encode($data);
 			if ($jsonData === false) {
 				return null;

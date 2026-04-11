@@ -11,7 +11,7 @@ use pocketmine\scheduler\Task;
  * Task to check payment statuses periodically
  */
 class CheckTask extends Task {
-	/** @param NapThe $plugin The main plugin instance */
+	/** @param NapThe $plugin Thực thể chính của plugin */
 	private NapThe $plugin;
 
 	public function __construct(NapThe $plugin) {

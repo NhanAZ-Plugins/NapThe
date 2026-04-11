@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace NapThe;
 
 /**
- * Constants used throughout the plugin.
+ * Các hằng số được sử dụng trong plugin.
  */
 class Constant {
-	/** Plugin prefix for messages */
+	/** Tiền tố plugin cho các thông báo */
 	public const PREFIX = "§8[§6Nạp Thẻ§8] ";
 
-	/** Edit API credentials directly here instead of using config.yml */
+	/** Chỉnh sửa tài khoản API trực tiếp tại đây thay vì dùng config.yml */
 	public const PARTNER_ID = "5093830561";
 	public const PARTNER_KEY = "933c17e2a7e4e902f66bf1a11bebbfd7";
 

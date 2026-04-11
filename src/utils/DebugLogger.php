@@ -33,7 +33,7 @@ use const PHP_EOL;
 class DebugLogger {
 	private static ?self $instance = null;
 
-	/** @var string Path to the logs directory */
+	/** @var string Đường dẫn tới thư mục lưu log */
 	private string $logsDir;
 
 	public function __construct(private NapThe $plugin) {
@@ -110,7 +110,7 @@ class DebugLogger {
 	) : void {
 		$message = "API $action";
 
-		// Redact sensitive data
+		// Ẩn bớt các dữ liệu nhạy cảm
 		if (isset($request["sign"])) {
 			$request["sign"] = is_string($request["sign"])
 				? substr($request["sign"], 0, 8) . "..."

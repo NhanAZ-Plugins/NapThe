@@ -24,7 +24,7 @@ class MessageTranslator {
 	 * Chuyển đổi thông báo lỗi API thành thông báo thân thiện
 	 */
 	public static function translateErrorMessage(string $errorMessage) : string {
-		// Debug log exact input
+		// Ghi nhận dữ liệu đầu vào chính xác nhất
 		if (class_exists("\NapThe\NapThe")) {
 			$plugin = \NapThe\NapThe::getInstance();
 			if (isset($plugin->debugLogger)) {
@@ -198,7 +198,7 @@ class MessageTranslator {
 	 * Định dạng thông báo lỗi với prefix
 	 */
 	public static function formatErrorMessage(string $errorMessage) : string {
-		// Log the original message for debugging
+		// Ghi nhận thông báo gốc để phục vụ gỡ lỗi
 		if (class_exists("\NapThe\NapThe")) {
 			$plugin = \NapThe\NapThe::getInstance();
 			if (isset($plugin->debugLogger)) {
@@ -211,7 +211,7 @@ class MessageTranslator {
 
 		$translatedMessage = self::translateErrorMessage($errorMessage);
 
-		// Log the translated message for debugging
+		// Ghi nhận thông báo đã dịch để phục vụ gỡ lỗi
 		if (class_exists("\NapThe\NapThe")) {
 			$plugin = \NapThe\NapThe::getInstance();
 			if (isset($plugin->debugLogger)) {
