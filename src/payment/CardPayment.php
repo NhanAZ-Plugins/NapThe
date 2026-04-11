@@ -152,6 +152,18 @@ class CardPayment implements JsonSerializable {
 	}
 
 	/**
+	 * @return array<string, int|string>
+	 */
+	public function toCardInfo() : array {
+		return [
+			'telco' => $this->telco,
+			'code' => $this->code,
+			'serial' => $this->serial,
+			'amount' => $this->amount
+		];
+	}
+
+	/**
 	 * @return array<string, mixed>
 	 */
 	public function jsonSerialize() : array {

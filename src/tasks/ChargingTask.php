@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Donate\tasks;
 
-use Donate\api\TrumTheAPI;
 use Donate\Constant;
-use pocketmine\player\Player;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use function is_array;
@@ -35,9 +33,8 @@ class ChargingTask extends AsyncTask {
 	}
 
 	public function onRun() : void {
-		// We need to make API calls here, but the TrumTheAPI is a better place to do this
-		// The actual charging process is handled by the PaymentProcessor class
-		// This task is just to ensure that the GUI doesn't freeze while making API calls
+		// The synchronous payment flow now lives in PaymentManager + payment services.
+		// This async task only carries request metadata back to the main thread.
 
 		// Store the result to be accessed in onCompletion
 		$this->setResult([
