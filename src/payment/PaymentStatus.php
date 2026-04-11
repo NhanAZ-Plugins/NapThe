@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Donate\payment;
+namespace NapThe\payment;
 
 /**
  * Payment status constants

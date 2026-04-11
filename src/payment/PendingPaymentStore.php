@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Donate\payment;
+namespace NapThe\payment;
 
 /**
  * In-memory storage for payments waiting on remote confirmation.

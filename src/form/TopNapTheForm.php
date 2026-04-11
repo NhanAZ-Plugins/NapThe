@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Donate\form;
+namespace NapThe\form;
 
-use Donate\Constant;
-use Donate\Donate;
-use Donate\utils\DataTypeUtils;
-use Donate\utils\FormAPI\CustomForm;
-use Donate\utils\FormAPI\SimpleForm;
+use NapThe\Constant;
+use NapThe\NapThe;
+use NapThe\utils\DataTypeUtils;
+use NapThe\utils\FormAPI\CustomForm;
+use NapThe\utils\FormAPI\SimpleForm;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use function arsort;
@@ -20,32 +20,32 @@ use function max;
 use function min;
 use function number_format;
 
-final class TopDonateForm {
-	public function __construct(private Donate $plugin) {
+final class TopNapTheForm {
+	public function __construct(private NapThe $plugin) {
 	}
 
 	public function send(Player $player, int $page = 1) : void {
-		$this->plugin->debugLogger->log("Sending top donate form to player: " . $player->getName() . ", page: " . $page, "form");
+		$this->plugin->debugLogger->log("Sending top napthe form to player: " . $player->getName() . ", page: " . $page, "form");
 		$player->sendForm($this->create($page));
 	}
 
 	private function create(int $page = 1) : SimpleForm {
 		$form = new SimpleForm(function(Player $player, mixed $selection) use ($page) : void {
 			if ($selection === null) {
-				$this->plugin->debugLogger->log("TopDonate form: Player " . $player->getName() . " closed the form", "form");
+				$this->plugin->debugLogger->log("TopNapThe form: Player " . $player->getName() . " closed the form", "form");
 				return;
 			}
 
 			$selectionLabel = DataTypeUtils::toString($selection);
-			$this->plugin->debugLogger->log("TopDonate form: Player " . $player->getName() . " clicked button label: " . $selectionLabel, "form");
+			$this->plugin->debugLogger->log("TopNapThe form: Player " . $player->getName() . " clicked button label: " . $selectionLabel, "form");
 
-			$donateData = $this->plugin->getDonateData()->getAll();
-			if (empty($donateData)) {
-				$this->plugin->debugLogger->log("TopDonate form: No donation data found when handling response", "form");
+			$napTheData = $this->plugin->getNapTheData()->getAll();
+			if (empty($napTheData)) {
+				$this->plugin->debugLogger->log("TopNapThe form: No donation data found when handling response", "form");
 				return;
 			}
 
-			$totalPlayers = count($donateData);
+			$totalPlayers = count($napTheData);
 			$itemsPerPage = 10;
 			$maxPage = (int) ceil($totalPlayers / $itemsPerPage);
 			$currentPage = max(1, min($page, $maxPage));
@@ -53,14 +53,14 @@ final class TopDonateForm {
 			switch ($selectionLabel) {
 				case "prev":
 					if ($currentPage > 1) {
-						$this->plugin->debugLogger->log("TopDonate form: Going to previous page: " . ($currentPage - 1), "form");
+						$this->plugin->debugLogger->log("TopNapThe form: Going to previous page: " . ($currentPage - 1), "form");
 						$this->send($player, $currentPage - 1);
 					} else {
-						$this->plugin->debugLogger->log("TopDonate form: Attempted to go to previous page while on first page", "form");
+						$this->plugin->debugLogger->log("TopNapThe form: Attempted to go to previous page while on first page", "form");
 						$player->sendTip("§8[§b!§8] §7» §fĐây là trang đầu tiên rồi.");
 						$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($player) : void {
 							if ($player->isOnline()) {
-								$this->plugin->debugLogger->log("TopDonate form: Reopening first page after delay", "form");
+								$this->plugin->debugLogger->log("TopNapThe form: Reopening first page after delay", "form");
 								$this->send($player, 1);
 							}
 						}), 30);
@@ -69,14 +69,14 @@ final class TopDonateForm {
 
 				case "next":
 					if ($currentPage < $maxPage) {
-						$this->plugin->debugLogger->log("TopDonate form: Going to next page: " . ($currentPage + 1), "form");
+						$this->plugin->debugLogger->log("TopNapThe form: Going to next page: " . ($currentPage + 1), "form");
 						$this->send($player, $currentPage + 1);
 					} else {
-						$this->plugin->debugLogger->log("TopDonate form: Attempted to go to next page while on last page", "form");
+						$this->plugin->debugLogger->log("TopNapThe form: Attempted to go to next page while on last page", "form");
 						$player->sendTip("§8[§b!§8] §7» §fĐây là trang cuối rồi.");
 						$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($player, $maxPage) : void {
 							if ($player->isOnline()) {
-								$this->plugin->debugLogger->log("TopDonate form: Reopening last page after delay", "form");
+								$this->plugin->debugLogger->log("TopNapThe form: Reopening last page after delay", "form");
 								$this->send($player, $maxPage);
 							}
 						}), 30);
@@ -84,44 +84,44 @@ final class TopDonateForm {
 					return;
 
 				case "goto":
-					$this->plugin->debugLogger->log("TopDonate form: Player " . $player->getName() . " clicked Go To Page button", "form");
+					$this->plugin->debugLogger->log("TopNapThe form: Player " . $player->getName() . " clicked Go To Page button", "form");
 					$this->openGoToPageForm($player, $currentPage, $maxPage);
 					return;
 
 				default:
-					$this->plugin->debugLogger->log("TopDonate form: Player " . $player->getName() . " clicked Close button", "form");
+					$this->plugin->debugLogger->log("TopNapThe form: Player " . $player->getName() . " clicked Close button", "form");
 					return;
 			}
 		});
 
-		$donateData = $this->plugin->getDonateData()->getAll();
-		$this->plugin->debugLogger->log("TopDonate form: Loaded " . count($donateData) . " donation records", "form");
+		$napTheData = $this->plugin->getNapTheData()->getAll();
+		$this->plugin->debugLogger->log("TopNapThe form: Loaded " . count($napTheData) . " donation records", "form");
 
-		if (empty($donateData)) {
-			$this->plugin->debugLogger->log("TopDonate form: No donation data found, showing empty message", "form");
+		if (empty($napTheData)) {
+			$this->plugin->debugLogger->log("TopNapThe form: No donation data found, showing empty message", "form");
 			return $form
 				->setTitle("§l§f⁕ §8[§6Xếp Hạng Donate§8] §f⁕")
 				->setContent("§cHiện chưa có một ai nạp thẻ ủng hộ máy chủ...")
 				->addButton("§l§8« §cĐóng §8»", -1, "", "close");
 		}
 
-		arsort($donateData);
+		arsort($napTheData);
 
-		$totalPlayers = count($donateData);
+		$totalPlayers = count($napTheData);
 		$itemsPerPage = 10;
 		$maxPage = (int) ceil($totalPlayers / $itemsPerPage);
 		$page = max(1, min($page, $maxPage));
 
-		$this->plugin->debugLogger->log("TopDonate form: Page info - Current: " . $page . ", Max: " . $maxPage . ", Total Players: " . $totalPlayers, "form");
+		$this->plugin->debugLogger->log("TopNapThe form: Page info - Current: " . $page . ", Max: " . $maxPage . ", Total Players: " . $totalPlayers, "form");
 
 		$startIndex = ($page - 1) * $itemsPerPage;
 		$i = 0;
 		$topList = [];
-		$serverTotalDonated = 0;
+		$serverTotalNapThe = 0;
 
-		foreach ($donateData as $playerName => $amount) {
+		foreach ($napTheData as $playerName => $amount) {
 			$amountValue = is_numeric($amount) ? (int) $amount : 0;
-			$serverTotalDonated += $amountValue;
+			$serverTotalNapThe += $amountValue;
 
 			if ($i >= $startIndex && $i < $startIndex + $itemsPerPage) {
 				$rank = $i + 1;
@@ -132,7 +132,7 @@ final class TopDonateForm {
 			$i++;
 		}
 
-		$formattedTotal = number_format($serverTotalDonated, 0, ",", ".");
+		$formattedTotal = number_format($serverTotalNapThe, 0, ",", ".");
 		$content = "§6⁕ §fBảng xếp hạng donate trang §a" . $page . "§8/§a" . $maxPage . " §6⁕\n\n";
 		$content .= implode("\n", $topList);
 		$content .= "\n\n§6⁕ §fTổng nạp từ người chơi§8: §a{$formattedTotal}₫ §6⁕";

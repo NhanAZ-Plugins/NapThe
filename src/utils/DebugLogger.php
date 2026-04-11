@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Donate\utils;
+namespace NapThe\utils;
 
-use Donate\Donate;
+use NapThe\NapThe;
 use pocketmine\utils\TextFormat;
 use function date;
 use function dirname;
@@ -36,7 +36,7 @@ class DebugLogger {
 	/** @var string Path to the logs directory */
 	private string $logsDir;
 
-	public function __construct(private Donate $plugin) {
+	public function __construct(private NapThe $plugin) {
 		self::$instance = $this;
 		$this->logsDir = $plugin->getDataFolder() . "logs";
 		@mkdir($this->logsDir, 0755, true);

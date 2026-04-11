@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Donate\tasks;
+namespace NapThe\tasks;
 
-use Donate\Donate;
+use NapThe\NapThe;
 use pocketmine\scheduler\Task;
 
 /**
  * Task to check payment statuses periodically
  */
 class CheckTask extends Task {
-	/** @param Donate $plugin The main plugin instance */
-	private Donate $plugin;
+	/** @param NapThe $plugin The main plugin instance */
+	private NapThe $plugin;
 
-	public function __construct(Donate $plugin) {
+	public function __construct(NapThe $plugin) {
 		$this->plugin = $plugin;
 	}
 	public function onRun() : void {

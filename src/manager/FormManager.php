@@ -2,31 +2,31 @@
 
 declare(strict_types=1);
 
-namespace Donate\manager;
+namespace NapThe\manager;
 
-use Donate\Constant;
-use Donate\Donate;
-use Donate\form\ConfirmationForm;
-use Donate\form\DonateCardForm;
-use Donate\form\FormCooldownTracker;
-use Donate\form\TopDonateForm;
+use NapThe\Constant;
+use NapThe\NapThe;
+use NapThe\form\ConfirmationForm;
+use NapThe\form\NapTheCardForm;
+use NapThe\form\FormCooldownTracker;
+use NapThe\form\TopNapTheForm;
 use pocketmine\player\Player;
 use function max;
 
 class FormManager {
-	private DonateCardForm $donateCardForm;
+	private NapTheCardForm $donateCardForm;
 
-	private TopDonateForm $topDonateForm;
+	private TopNapTheForm $topNapTheForm;
 
 	private ConfirmationForm $confirmationForm;
 
 	private FormCooldownTracker $cooldownTracker;
 
-	public function __construct(Donate $plugin) {
+	public function __construct(NapThe $plugin) {
 		$formCooldown = max(1, Constant::FORM_COOLDOWN);
 		$this->cooldownTracker = new FormCooldownTracker($formCooldown);
-		$this->donateCardForm = new DonateCardForm($plugin, $this->cooldownTracker);
-		$this->topDonateForm = new TopDonateForm($plugin);
+		$this->napTheCardForm = new NapTheCardForm($plugin, $this->cooldownTracker);
+		$this->topNapTheForm = new TopNapTheForm($plugin);
 		$this->confirmationForm = new ConfirmationForm();
 
 		$plugin->debugLogger->log("Form cooldown set to {$formCooldown} seconds", "form");
@@ -36,12 +36,12 @@ class FormManager {
 		return $this->cooldownTracker->getCooldown();
 	}
 
-	public function sendDonateForm(Player $player) : void {
-		$this->donateCardForm->send($player);
+	public function sendNapTheForm(Player $player) : void {
+		$this->napTheCardForm->send($player);
 	}
 
-	public function sendTopDonateForm(Player $player, int $page = 1) : void {
-		$this->topDonateForm->send($player, $page);
+	public function sendTopNapTheForm(Player $player, int $page = 1) : void {
+		$this->topNapTheForm->send($player, $page);
 	}
 
 	public function sendConfirmationForm(Player $player, string $message, callable $onConfirm) : void {

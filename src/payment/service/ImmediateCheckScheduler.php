@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Donate\payment\service;
+namespace NapThe\payment\service;
 
-use Donate\Constant;
-use Donate\Donate;
-use Donate\payment\PendingPaymentStore;
+use NapThe\Constant;
+use NapThe\NapThe;
+use NapThe\payment\PendingPaymentStore;
 use pocketmine\scheduler\ClosureTask;
 use function time;
 
 final class ImmediateCheckScheduler {
 	public function __construct(
-		private Donate $plugin,
+		private NapThe $plugin,
 		private PendingPaymentStore $store,
 		private PaymentOutcomeHandler $outcomeHandler
 	) {
@@ -45,7 +45,7 @@ final class ImmediateCheckScheduler {
 						["age" => (time() - $payment->getCreatedAt()) . "s"]
 					);
 
-					$response = \Donate\api\TrumTheAPI::checkCardStatus($requestId, $payment->toCardInfo());
+					$response = \NapThe\api\TrumTheAPI::checkCardStatus($requestId, $payment->toCardInfo());
 					if ($response === null) {
 						if ($maxRetries > 0) {
 							$this->scheduleImmediateCheck($requestId, $retryDelay, $maxRetries - 1);

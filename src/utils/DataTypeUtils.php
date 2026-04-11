@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Donate\utils;
+namespace NapThe\utils;
 
 use function is_array;
 use function is_bool;

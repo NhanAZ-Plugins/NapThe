@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Donate\tasks;
+namespace NapThe\tasks;
 
-use Donate\Constant;
+use NapThe\Constant;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use function is_array;

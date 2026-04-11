@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Donate\form;
+namespace NapThe\form;
 
 final class FormCooldownTracker {
 	/** @var array<string, int> */
-	private array $lastDonateSubmissionAt = [];
+	private array $lastNapTheSubmissionAt = [];
 
 	public function __construct(private int $cooldown) {
 	}
@@ -15,8 +15,8 @@ final class FormCooldownTracker {
 		return $this->cooldown;
 	}
 
-	public function getRemainingDonateCooldown(string $playerName, int $currentTime) : int {
-		$lastTime = $this->lastDonateSubmissionAt[$playerName] ?? null;
+	public function getRemainingNapTheCooldown(string $playerName, int $currentTime) : int {
+		$lastTime = $this->lastNapTheSubmissionAt[$playerName] ?? null;
 		if ($lastTime === null) {
 			return 0;
 		}
@@ -29,7 +29,7 @@ final class FormCooldownTracker {
 		return $this->cooldown - $timeDiff;
 	}
 
-	public function touchDonateCooldown(string $playerName, int $currentTime) : void {
-		$this->lastDonateSubmissionAt[$playerName] = $currentTime;
+	public function touchNapTheCooldown(string $playerName, int $currentTime) : void {
+		$this->lastNapTheSubmissionAt[$playerName] = $currentTime;
 	}
 }

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Donate\payment\service;
+namespace NapThe\payment\service;
 
-use Donate\api\ChargeStatusResponse;
-use Donate\Donate;
-use Donate\payment\CardPayment;
-use Donate\payment\PaymentStatus;
-use Donate\payment\PendingPaymentStore;
-use Donate\utils\MessageTranslator;
+use NapThe\api\ChargeStatusResponse;
+use NapThe\NapThe;
+use NapThe\payment\CardPayment;
+use NapThe\payment\PaymentStatus;
+use NapThe\payment\PendingPaymentStore;
+use NapThe\utils\MessageTranslator;
 
 final class PaymentOutcomeHandler {
 	public function __construct(
-		private Donate $plugin,
+		private NapThe $plugin,
 		private PendingPaymentStore $store
 	) {
 	}

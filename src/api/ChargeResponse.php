@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Donate\api;
+namespace NapThe\api;
 
-use Donate\StatusCode;
-use Donate\utils\DataTypeUtils;
+use NapThe\StatusCode;
+use NapThe\utils\DataTypeUtils;
 use JsonSerializable;
 use function class_exists;
 use function strpos;
@@ -144,8 +144,8 @@ class ChargeResponse implements JsonSerializable {
 	 */
 	public function getFriendlyMessage() : string {
 		// Debug log để xem thông báo gốc
-		if (class_exists("\Donate\Donate") && $this->status !== StatusCode::SUCCESS && $this->status !== StatusCode::PENDING) {
-			$plugin = \Donate\Donate::getInstance();
+		if (class_exists("\NapThe\NapThe") && $this->status !== StatusCode::SUCCESS && $this->status !== StatusCode::PENDING) {
+			$plugin = \NapThe\NapThe::getInstance();
 			if (isset($plugin->debugLogger)) {
 				$plugin->debugLogger->log(
 					"ChargeResponse.getFriendlyMessage raw message: '" . $this->message . "', status: " . $this->status,
@@ -155,12 +155,12 @@ class ChargeResponse implements JsonSerializable {
 		}
 
 		if (!$this->isValidRequest()) {
-			return \Donate\utils\MessageTranslator::formatErrorMessage("connection.failed");
+			return \NapThe\utils\MessageTranslator::formatErrorMessage("connection.failed");
 		}
 
 		// Xử lý đặc biệt cho card_existed
 		if (strpos($this->message, "card_existed") !== false) {
-			return \Donate\utils\MessageTranslator::formatErrorMessage("Thẻ này đã được sử dụng trước đó");
+			return \NapThe\utils\MessageTranslator::formatErrorMessage("Thẻ này đã được sử dụng trước đó");
 		}
 
 		$message = match ($this->status) {
@@ -171,7 +171,7 @@ class ChargeResponse implements JsonSerializable {
 			default => $this->message
 		};
 
-		return \Donate\utils\MessageTranslator::formatErrorMessage($message);
+		return \NapThe\utils\MessageTranslator::formatErrorMessage($message);
 	}
 
 	/**

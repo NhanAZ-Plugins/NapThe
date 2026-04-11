@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Donate\payment\service;
+namespace NapThe\payment\service;
 
-use Donate\Donate;
-use Donate\payment\CardPayment;
-use Donate\payment\PendingPaymentStore;
+use NapThe\NapThe;
+use NapThe\payment\CardPayment;
+use NapThe\payment\PendingPaymentStore;
 use pocketmine\utils\InternetException;
 use function count;
 use function time;
 
 final class PendingPaymentChecker {
 	public function __construct(
-		private Donate $plugin,
+		private NapThe $plugin,
 		private PendingPaymentStore $store,
 		private PaymentOutcomeHandler $outcomeHandler,
 		private ImmediateCheckScheduler $immediateCheckScheduler
@@ -48,7 +48,7 @@ final class PendingPaymentChecker {
 					["age" => (time() - $payment->getCreatedAt()) . "s"]
 				);
 
-				$response = \Donate\api\TrumTheAPI::checkCardStatus($requestId, $payment->toCardInfo());
+				$response = \NapThe\api\TrumTheAPI::checkCardStatus($requestId, $payment->toCardInfo());
 				if ($response === null) {
 					$this->plugin->debugLogger->logPayment(
 						"CHECK_ERROR",

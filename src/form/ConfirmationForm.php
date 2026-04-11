@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Donate\form;
+namespace NapThe\form;
 
-use Donate\utils\FormAPI\ModalForm;
+use NapThe\utils\FormAPI\ModalForm;
 use pocketmine\player\Player;
 
 final class ConfirmationForm {

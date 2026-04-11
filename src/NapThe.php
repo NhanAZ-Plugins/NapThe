@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Donate;
+namespace NapThe;
 
-use Donate\manager\FormManager;
-use Donate\manager\PaymentManager;
-use Donate\traits\DonateTopDonateTrait;
-use Donate\utils\DebugLogger;
+use NapThe\manager\FormManager;
+use NapThe\manager\PaymentManager;
+use NapThe\traits\NapTheTopNapTheTrait;
+use NapThe\utils\DebugLogger;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
@@ -27,13 +27,13 @@ use function uniqid;
 use function version_compare;
 use const PHP_VERSION;
 
-class Donate extends PluginBase {
+class NapThe extends PluginBase {
 	use SingletonTrait;
-	use DonateTopDonateTrait;
+	use NapTheTopNapTheTrait;
 
 	public DebugLogger $debugLogger;
 
-	private Config $donateData;
+	private Config $napTheData;
 	private FormManager $formManager;
 	private PaymentManager $paymentManager;
 
@@ -54,7 +54,7 @@ class Donate extends PluginBase {
 
 		api\TrumTheAPI::setApiCooldown(Constant::API_COOLDOWN);
 
-		$this->donateData = new Config($this->getDataFolder() . "donateData.yml", Config::YAML);
+		$this->napTheData = new Config($this->getDataFolder() . "naptheData.yml", Config::YAML);
 
 		// Initialize debug logger (file-only, daily log files)
 		$this->debugLogger = new DebugLogger($this);
@@ -78,8 +78,8 @@ class Donate extends PluginBase {
 
 	protected function onDisable() : void {
 		// Save any pending data
-		if (isset($this->donateData)) {
-			$this->donateData->save();
+		if (isset($this->napTheData)) {
+			$this->napTheData->save();
 		}
 
 		if (isset($this->debugLogger)) {
@@ -96,15 +96,15 @@ class Donate extends PluginBase {
 		$this->debugLogger->log("Command executed: $senderName used /$commandName$argsString", "command");
 
 		switch ($commandName) {
-			case "donate":
+			case "napthe":
 				if ($sender instanceof Player) {
-					// Người chơi thực thi lệnh, mở form donate
-					$this->debugLogger->log("Opening donate form for player: " . $sender->getName(), "command");
-					$this->formManager->sendDonateForm($sender);
+					// Người chơi thực thi lệnh, mở form napthe
+					$this->debugLogger->log("Opening napthe form for player: " . $sender->getName(), "command");
+					$this->formManager->sendNapTheForm($sender);
 					return true;
 				} else {
 					// Nếu console thực thi lệnh với đầy đủ tham số
-					// Định dạng: /donate <tên người chơi> <telco> <code> <serial> <amount>
+					// Định dạng: /napthe <tên người chơi> <telco> <code> <serial> <amount>
 					if (isset($args[0], $args[1], $args[2], $args[3], $args[4])) {
 						$playerName = $args[0];
 						$telco = strtoupper($args[1]);
@@ -198,8 +198,8 @@ class Donate extends PluginBase {
 					} else {
 						// Hiển thị hướng dẫn sử dụng
 						$sender->sendMessage(Constant::PREFIX . "§8[§e!§8] §7» §fHướng dẫn sử dụng lệnh §e/donate§f:");
-						$sender->sendMessage("  §8▪ §7/donate §8[§etên§8] [§etelco§8] [§emã thẻ§8] [§eserial§8] [§emệnh giá§8]");
-						$sender->sendMessage("  §8▪ §7Ví dụ: §f/donate NhanAZ VIETTEL 123456789012 123456789 50000");
+						$sender->sendMessage("  §8▪ §7/napthe §8[§etên§8] [§etelco§8] [§emã thẻ§8] [§eserial§8] [§emệnh giá§8]");
+						$sender->sendMessage("  §8▪ §7Ví dụ: §f/napthe NhanAZ VIETTEL 123456789012 123456789 50000");
 						$sender->sendMessage("  §8▪ §7Loại thẻ: §aVIETTEL§8, §aMOBIFONE§8, §aVINAPHONE");
 						$sender->sendMessage("  §8▪ §7Mệnh giá: §a10k§8, §a20k§8, §a50k§8, §a100k§8, §a200k§8, §a500k");
 
@@ -216,20 +216,20 @@ class Donate extends PluginBase {
 					return true;
 				}
 
-			case "topdonate":
+			case "topnapthe":
 				$page = 1;
 				if (isset($args[0]) && is_numeric($args[0])) {
 					$page = max(1, (int) $args[0]);
 				}
 
-				$this->debugLogger->log("TopDonate command: $senderName requested page $page", "command");
+				$this->debugLogger->log("TopNapThe command: $senderName requested page $page", "command");
 
 				// Nếu là player thì hiển thị form, nếu là console thì hiển thị text
 				if ($sender instanceof Player) {
-					$this->debugLogger->log("Sending TopDonate form to player: " . $sender->getName(), "command");
-					$this->formManager->sendTopDonateForm($sender, $page);
+					$this->debugLogger->log("Sending TopNapThe form to player: " . $sender->getName(), "command");
+					$this->formManager->sendTopNapTheForm($sender, $page);
 				} else {
-					$this->debugLogger->log("Showing TopDonate text to console", "command");
+					$this->debugLogger->log("Showing TopNapThe text to console", "command");
 					$this->showTopDonators($sender, $page);
 				}
 				return true;
@@ -246,10 +246,10 @@ class Donate extends PluginBase {
 		$this->getServer()->broadcastMessage(utils\MessageTranslator::formatSuccessMessage("Người chơi $playerName đã nạp {$formattedAmount} để ủng hộ máy chủ!"));
 
 		// Update player statistics safely
-		$currentAmount = $this->donateData->getNested($playerName, 0);
+		$currentAmount = $this->napTheData->getNested($playerName, 0);
 		$safeAmount = is_numeric($currentAmount) ? (int) $currentAmount : 0;
-		$this->donateData->setNested($playerName, $safeAmount + $amount);
-		$this->donateData->save();
+		$this->napTheData->setNested($playerName, $safeAmount + $amount);
+		$this->napTheData->save();
 
 		// Calculate bonus amount
 		$bonusAmount = (int) ($amount * Constant::BONUS);
@@ -267,8 +267,8 @@ class Donate extends PluginBase {
 		$this->debugLogger->log("Successful donation - Player: $playerName, Amount: $amount, Bonus: $bonusAmount", "payment");
 	}
 
-	public function getDonateData() : Config {
-		return $this->donateData;
+	public function getNapTheData() : Config {
+		return $this->napTheData;
 	}
 
 	public function getFormManager() : FormManager {

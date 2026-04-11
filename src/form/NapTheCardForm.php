@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Donate\form;
+namespace NapThe\form;
 
-use Donate\Constant;
-use Donate\Donate;
-use Donate\utils\DataTypeUtils;
-use Donate\utils\FormAPI\CustomForm;
-use Donate\utils\MessageTranslator;
+use NapThe\Constant;
+use NapThe\NapThe;
+use NapThe\utils\DataTypeUtils;
+use NapThe\utils\FormAPI\CustomForm;
+use NapThe\utils\MessageTranslator;
 use pocketmine\player\Player;
 use Ramsey\Uuid\Uuid;
 use function is_array;
@@ -16,9 +16,9 @@ use function strpos;
 use function substr;
 use function time;
 
-final class DonateCardForm {
+final class NapTheCardForm {
 	public function __construct(
-		private Donate $plugin,
+		private NapThe $plugin,
 		private FormCooldownTracker $cooldownTracker
 	) {
 	}
@@ -26,29 +26,29 @@ final class DonateCardForm {
 	public function send(Player $player) : void {
 		$playerName = $player->getName();
 		$currentTime = time();
-		$remainingTime = $this->cooldownTracker->getRemainingDonateCooldown($playerName, $currentTime);
+		$remainingTime = $this->cooldownTracker->getRemainingNapTheCooldown($playerName, $currentTime);
 
 		if ($remainingTime > 0) {
 			$player->sendMessage(MessageTranslator::formatErrorMessage("Vui lòng đợi {$remainingTime} giây trước khi mở form nạp thẻ lại."));
-			$this->plugin->debugLogger->log("Form spam prevented - Player: {$playerName} tried to open donate form too quickly", "form");
+			$this->plugin->debugLogger->log("Form spam prevented - Player: {$playerName} tried to open napthe form too quickly", "form");
 			return;
 		}
 
-		$this->cooldownTracker->touchDonateCooldown($playerName, $currentTime);
-		$this->plugin->debugLogger->log("Sending donate form to player: " . $player->getName(), "form");
+		$this->cooldownTracker->touchNapTheCooldown($playerName, $currentTime);
+		$this->plugin->debugLogger->log("Sending napthe form to player: " . $player->getName(), "form");
 		$player->sendForm($this->create());
 	}
 
 	private function create() : CustomForm {
 		$form = new CustomForm(function(Player $player, mixed $data) : void {
 			if ($data === null) {
-				$this->plugin->debugLogger->log("Player " . $player->getName() . " closed the donate form", "form");
+				$this->plugin->debugLogger->log("Player " . $player->getName() . " closed the napthe form", "form");
 				return;
 			}
 
 			$playerName = $player->getName();
 			$currentTime = time();
-			$remainingTime = $this->cooldownTracker->getRemainingDonateCooldown($playerName, $currentTime);
+			$remainingTime = $this->cooldownTracker->getRemainingNapTheCooldown($playerName, $currentTime);
 
 			if ($remainingTime > 0) {
 				$player->sendMessage(MessageTranslator::formatErrorMessage("Gửi quá nhanh! Vui lòng đợi {$remainingTime} giây trước khi gửi lại."));
@@ -56,7 +56,7 @@ final class DonateCardForm {
 				return;
 			}
 
-			$this->cooldownTracker->touchDonateCooldown($playerName, $currentTime);
+			$this->cooldownTracker->touchNapTheCooldown($playerName, $currentTime);
 
 			if (!is_array($data)) {
 				$player->sendMessage(MessageTranslator::formatErrorMessage("Có lỗi xảy ra khi xử lý biểu mẫu!"));

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Donate\payment\service;
+namespace NapThe\payment\service;
 
-use Donate\api\ChargeResponse;
-use Donate\api\TrumTheAPI;
-use Donate\Donate;
-use Donate\payment\CardPayment;
-use Donate\payment\PendingPaymentStore;
+use NapThe\api\ChargeResponse;
+use NapThe\api\TrumTheAPI;
+use NapThe\NapThe;
+use NapThe\payment\CardPayment;
+use NapThe\payment\PendingPaymentStore;
 use pocketmine\player\Player;
 use pocketmine\utils\InternetException;
 use function substr;
@@ -16,7 +16,7 @@ use function time;
 
 final class ChargeRequestHandler {
 	public function __construct(
-		private Donate $plugin,
+		private NapThe $plugin,
 		private PendingPaymentStore $store,
 		private ImmediateCheckScheduler $immediateCheckScheduler
 	) {

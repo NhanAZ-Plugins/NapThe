@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Donate\tasks;
+namespace NapThe\tasks;
 
-use Donate\manager\PaymentManager;
+use NapThe\manager\PaymentManager;
 use pocketmine\scheduler\Task;
 
 /**

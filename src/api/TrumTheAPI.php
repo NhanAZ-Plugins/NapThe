@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Donate\api;
+namespace NapThe\api;
 
-use Donate\Constant;
-use Donate\Donate;
-use Donate\utils\DataTypeUtils;
+use NapThe\Constant;
+use NapThe\NapThe;
+use NapThe\utils\DataTypeUtils;
 use pocketmine\utils\Internet;
 use pocketmine\utils\InternetException;
 use pocketmine\utils\InternetRequestResult;
@@ -52,7 +52,7 @@ final class TrumTheAPI {
 	 * @return bool True if request can proceed, false if throttled
 	 */
 	private static function canMakeApiRequest(string $requestType) : bool {
-		$plugin = Donate::getInstance();
+		$plugin = NapThe::getInstance();
 		$server = $plugin->getServer();
 		$serverIp = $server->getIp();
 		$currentTime = time();
@@ -96,7 +96,7 @@ final class TrumTheAPI {
 		int $amount,
 		string $requestId
 	) : ?ChargeResponse {
-		$plugin = Donate::getInstance();
+		$plugin = NapThe::getInstance();
 
 		// Check rate limiting
 		if (!self::canMakeApiRequest('charge')) {
@@ -173,7 +173,7 @@ final class TrumTheAPI {
 	 * @throws InternetException If the HTTP request fails
 	 */
 	public static function checkCardStatus(string $requestId, ?array $cardInfo = null) : ?ChargeStatusResponse {
-		$plugin = Donate::getInstance();
+		$plugin = NapThe::getInstance();
 
 		// Check rate limiting
 		if (!self::canMakeApiRequest('status')) {

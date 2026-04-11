@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Donate\manager;
+namespace NapThe\manager;
 
-use Donate\api\ChargeResponse;
-use Donate\Constant;
-use Donate\Donate;
-use Donate\payment\CardPayment;
-use Donate\payment\PendingPaymentStore;
-use Donate\payment\service\ChargeRequestHandler;
-use Donate\payment\service\ImmediateCheckScheduler;
-use Donate\payment\service\PaymentOutcomeHandler;
-use Donate\payment\service\PendingPaymentChecker;
-use Donate\tasks\PaymentCheckTask;
+use NapThe\api\ChargeResponse;
+use NapThe\Constant;
+use NapThe\NapThe;
+use NapThe\payment\CardPayment;
+use NapThe\payment\PendingPaymentStore;
+use NapThe\payment\service\ChargeRequestHandler;
+use NapThe\payment\service\ImmediateCheckScheduler;
+use NapThe\payment\service\PaymentOutcomeHandler;
+use NapThe\payment\service\PendingPaymentChecker;
+use NapThe\tasks\PaymentCheckTask;
 use pocketmine\player\Player;
 
 class PaymentManager {
@@ -25,9 +25,9 @@ class PaymentManager {
 
 	private ImmediateCheckScheduler $immediateCheckScheduler;
 
-	private Donate $plugin;
+	private NapThe $plugin;
 
-	public function __construct(Donate $plugin) {
+	public function __construct(NapThe $plugin) {
 		$this->plugin = $plugin;
 		$this->pendingPaymentStore = new PendingPaymentStore();
 

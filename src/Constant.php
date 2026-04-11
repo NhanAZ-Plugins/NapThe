@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Donate;
+namespace NapThe;
 
 /**
  * Constants used throughout the plugin.
@@ -24,7 +24,7 @@ class Constant {
 	/** Cooldown between API requests in seconds */
 	public const API_COOLDOWN = 2;
 
-	/** Cooldown between donate form opens/submissions in seconds */
+	/** Cooldown between napthe form opens/submissions in seconds */
 	public const FORM_COOLDOWN = 5;
 
 	/** Pending payment check interval in seconds */

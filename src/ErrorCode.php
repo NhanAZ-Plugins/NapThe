@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Donate;
+namespace NapThe;
 
 /**
  * Error codes used throughout the plugin

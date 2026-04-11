@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Donate\utils;
+namespace NapThe\utils;
 
-use Donate\Constant;
+use NapThe\Constant;
 use function class_exists;
 use function number_format;
 use function preg_match;
@@ -25,8 +25,8 @@ class MessageTranslator {
 	 */
 	public static function translateErrorMessage(string $errorMessage) : string {
 		// Debug log exact input
-		if (class_exists("\Donate\Donate")) {
-			$plugin = \Donate\Donate::getInstance();
+		if (class_exists("\NapThe\NapThe")) {
+			$plugin = \NapThe\NapThe::getInstance();
 			if (isset($plugin->debugLogger)) {
 				$plugin->debugLogger->log(
 					"translateErrorMessage received exactly: '" . $errorMessage . "'",
@@ -180,8 +180,8 @@ class MessageTranslator {
 		}
 
 		// Nếu không thể xử lý, log thông báo gốc
-		if (class_exists("\Donate\Donate")) {
-			$plugin = \Donate\Donate::getInstance();
+		if (class_exists("\NapThe\NapThe")) {
+			$plugin = \NapThe\NapThe::getInstance();
 			if (isset($plugin->debugLogger)) {
 				$plugin->debugLogger->log(
 					"Unable to translate error message: '" . $errorMessage . "', using default",
@@ -199,8 +199,8 @@ class MessageTranslator {
 	 */
 	public static function formatErrorMessage(string $errorMessage) : string {
 		// Log the original message for debugging
-		if (class_exists("\Donate\Donate")) {
-			$plugin = \Donate\Donate::getInstance();
+		if (class_exists("\NapThe\NapThe")) {
+			$plugin = \NapThe\NapThe::getInstance();
 			if (isset($plugin->debugLogger)) {
 				$plugin->debugLogger->log(
 					"Pre-translation error message: '{$errorMessage}'",
@@ -212,8 +212,8 @@ class MessageTranslator {
 		$translatedMessage = self::translateErrorMessage($errorMessage);
 
 		// Log the translated message for debugging
-		if (class_exists("\Donate\Donate")) {
-			$plugin = \Donate\Donate::getInstance();
+		if (class_exists("\NapThe\NapThe")) {
+			$plugin = \NapThe\NapThe::getInstance();
 			if (isset($plugin->debugLogger)) {
 				$plugin->debugLogger->log(
 					"Translated error message: '{$translatedMessage}' (from '{$errorMessage}')",

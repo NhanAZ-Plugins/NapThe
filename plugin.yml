@@ -1,30 +1,28 @@
 ---
-name: Donate
+name: NapThe
 version: 1.0.0
-main: Donate\Donate
-src-namespace-prefix: Donate
-api: 5.0.0
-extensions: [json]
+main: NapThe\NapThe
+src-namespace-prefix: NapThe
+api: [5.0.0]
 authors: [NhanAZ, hachkingtohach1, TungstenVN]
 description: "Plugin nạp thẻ cho máy chủ PocketMine-MP sử dụng API của trumthe.vn"
 website: https://github.com/NhanAZ/Donate
-php: [8.2.0]
 
 commands:
-  donate:
+  napthe:
     description: "§eMở giao diện nạp thẻ"
-    permission: donate.command.donate
-    usage: "§7- §f/donate §8→ §7Mở giao diện nạp thẻ cho người chơi§r\n§7- §f/donate §8[§ftên§8] [§ftelco§8] [§fmã§8] [§fserial§8] [§fmệnh giá§8] §8→ §7Nạp thẻ từ console§r"
-  topdonate:
-    description: "§eXem bảng xếp hạng người nạp thẻ"
-    permission: donate.command.topdonate
-    usage: "§7- §f/topdonate §8[§ftrang§8] §8→ §7Xem bảng xếp hạng người nạp thẻ§r"
+    usage: "§8[§e!§8] §7» §fSử dụng: §e/napthe"
+    permission: napthe.command.napthe
+  topnapthe:
+    description: "Xem bảng xếp hạng những người nạp thẻ nhiều nhất"
+    usage: "§8[§e!§8] §7» §fSử dụng: §e/topnapthe §8[§etrang§8]"
+    permission: napthe.command.topnapthe
 
 permissions:
-  donate.command.donate:
+  napthe.command.napthe:
     default: true
-    description: "§7Cho phép sử dụng lệnh §f/donate"
-  donate.command.topdonate:
+    description: "§7Cho phép sử dụng lệnh §f/napthe"
+  napthe.command.topnapthe:
     default: true
-    description: "§7Cho phép sử dụng lệnh §f/topdonate"
+    description: "§7Cho phép sử dụng lệnh §f/topnapthe"
 ...

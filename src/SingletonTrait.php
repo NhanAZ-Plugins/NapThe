@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Donate;
+namespace NapThe;
 
 trait SingletonTrait {
 
-	public static Donate $instance;
+	public static NapThe $instance;
 
-	public static function setInstance(Donate $instance) : void {
+	public static function setInstance(NapThe $instance) : void {
 		self::$instance = $instance;
 	}
 
