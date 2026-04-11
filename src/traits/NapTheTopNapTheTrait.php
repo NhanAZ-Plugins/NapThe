@@ -18,7 +18,7 @@ trait NapTheTopNapTheTrait {
 	private function showTopDonators(CommandSender $sender, int $page) : void {
 		$napTheData = $this->napTheData->getAll();
 		if (empty($napTheData)) {
-			$sender->sendMessage("§8[§b!§8] §7» §fChưa có dữ liệu nạp thẻ nào.");
+			$sender->sendMessage("Chưa có dữ liệu nạp thẻ nào.");
 			return;
 		}
 
@@ -29,7 +29,7 @@ trait NapTheTopNapTheTrait {
 		$maxPage = ceil($totalPlayers / $itemsPerPage);
 		$page = min($maxPage, $page);
 
-		$sender->sendMessage(Constant::PREFIX . "§6⁕ §fBảng xếp hạng nạp thẻ trang §a{$page}§8/§a{$maxPage} §7(/topdonate <trang>) §6⁕");
+		$sender->sendMessage(Constant::PREFIX . "Bảng xếp hạng nạp thẻ trang {$page}/{$maxPage} (/topdonate <trang>)");
 
 		$startIndex = ($page - 1) * $itemsPerPage;
 		$i = 0;
@@ -47,17 +47,17 @@ trait NapTheTopNapTheTrait {
 			if ($i >= $startIndex && $i < $startIndex + $itemsPerPage) {
 				$rank = $i + 1;
 				$formattedAmount = number_format($amountValue, 0, ".", ".");
-				$sender->sendMessage("  §8▪ §7Hạng §f" . $rank . " §7» §b" . $playerName . " §7- Đã nạp: §a" . $formattedAmount . "₫");
+				$sender->sendMessage("Hạng " . $rank . " - " . $playerName . " - Đã nạp: " . $formattedAmount . "₫");
 			}
 
 			$i++;
 		}
 
 		if ($sender instanceof Player && $senderRank > 0) {
-			$sender->sendMessage("§8» §6Top Nạp Thẻ §7(Trang §b" . $page . " §7/ §b" . $maxPage . "§7) §8«");
+			$sender->sendMessage("Top Nạp Thẻ (Trang " . $page . " / " . $maxPage . ")");
 		}
 
 		$formattedTotal = number_format($serverTotalNapThe, 0, ".", ".");
-		$sender->sendMessage("§8[§b!§8] §7» §fTổng nạp toàn server: §a{$formattedTotal}₫");
+		$sender->sendMessage("Tổng nạp toàn server: {$formattedTotal}₫");
 	}
 }

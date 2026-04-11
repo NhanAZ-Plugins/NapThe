@@ -69,7 +69,7 @@ final class NapTheCardForm {
 			$code = DataTypeUtils::toString($data["code"] ?? "");
 
 			if ($serial === "" || $code === "") {
-				$player->sendMessage("§8[§c×§8] §7» §cVui lòng không để trống số sê-ri hoặc mã thẻ.");
+				$player->sendMessage("Vui lòng không để trống số sê-ri hoặc mã thẻ.");
 				$this->plugin->debugLogger->log("Player {$player->getName()} submitted form with empty serial or code", "payment");
 				return;
 			}
@@ -111,11 +111,11 @@ final class NapTheCardForm {
 			$this->plugin->debugLogger->log("Card processing failed immediately for {$player->getName()} - Reason: {$response->getMessage()}", "payment");
 		});
 
-		$form->setTitle("§8» §6Nạp Thẻ §8«")
-			->addDropdown("§7Kho thẻ", Constant::TELCO_DISPLAY, 0, "telco")
-			->addDropdown("§7Mệnh giá", Constant::AMOUNT_DISPLAY, 0, "amount")
-			->addInput("§7Số sê-ri", "Ví dụ: 1000...", null, "serial")
-			->addInput("§7Mã thẻ", "Ví dụ: 3128...", null, "code");
+		$form->setTitle("Nạp Thẻ")
+			->addDropdown("Loại thẻ", Constant::TELCO_DISPLAY, 0, "telco")
+			->addDropdown("Mệnh giá", Constant::AMOUNT_DISPLAY, 0, "amount")
+			->addInput("Số sê-ri", "Ví dụ: 1000...", null, "serial")
+			->addInput("Mã thẻ", "Ví dụ: 3128...", null, "code");
 
 		return $form;
 	}

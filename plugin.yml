@@ -6,23 +6,23 @@ src-namespace-prefix: NapThe
 api: 5.0.0
 author: NhanAZ
 description: "Plugin nạp thẻ cho máy chủ PocketMine-MP sử dụng API của trumthe.vn"
-website: https://github.com/NhanAZ/Donate
+website: https://github.com/NhanAZ/NapThe
 
 commands:
   napthe:
-    description: "§eMở giao diện nạp thẻ"
-    usage: "§8[§e!§8] §7» §fSử dụng: §e/napthe"
+    description: "Mở giao diện nạp thẻ"
+    usage: "Sử dụng: /napthe"
     permission: napthe.command.napthe
   topnapthe:
     description: "Xem bảng xếp hạng những người nạp thẻ nhiều nhất"
-    usage: "§8[§e!§8] §7» §fSử dụng: §e/topnapthe §8[§etrang§8]"
+    usage: "Sử dụng: /topnapthe [trang]"
     permission: napthe.command.topnapthe
 
 permissions:
   napthe.command.napthe:
     default: true
-    description: "§7Cho phép sử dụng lệnh §f/napthe"
+    description: "Cho phép sử dụng lệnh /napthe"
   napthe.command.topnapthe:
     default: true
-    description: "§7Cho phép sử dụng lệnh §f/topnapthe"
+    description: "Cho phép sử dụng lệnh /topnapthe"
 ...

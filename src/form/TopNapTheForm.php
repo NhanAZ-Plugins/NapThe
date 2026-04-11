@@ -57,7 +57,7 @@ final class TopNapTheForm {
 						$this->send($player, $currentPage - 1);
 					} else {
 						$this->plugin->debugLogger->log("TopNapThe form: Attempted to go to previous page while on first page", "form");
-						$player->sendTip("§8[§b!§8] §7» §fĐây là trang đầu tiên rồi.");
+						$player->sendTip("Đây là trang đầu tiên rồi.");
 						$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($player) : void {
 							if ($player->isOnline()) {
 								$this->plugin->debugLogger->log("TopNapThe form: Reopening first page after delay", "form");
@@ -73,7 +73,7 @@ final class TopNapTheForm {
 						$this->send($player, $currentPage + 1);
 					} else {
 						$this->plugin->debugLogger->log("TopNapThe form: Attempted to go to next page while on last page", "form");
-						$player->sendTip("§8[§b!§8] §7» §fĐây là trang cuối rồi.");
+						$player->sendTip("Đây là trang cuối rồi.");
 						$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($player, $maxPage) : void {
 							if ($player->isOnline()) {
 								$this->plugin->debugLogger->log("TopNapThe form: Reopening last page after delay", "form");
@@ -100,9 +100,9 @@ final class TopNapTheForm {
 		if (empty($napTheData)) {
 			$this->plugin->debugLogger->log("TopNapThe form: No donation data found, showing empty message", "form");
 			return $form
-				->setTitle("§l§f⁕ §8[§6Xếp Hạng Donate§8] §f⁕")
-				->setContent("§cHiện chưa có một ai nạp thẻ ủng hộ máy chủ...")
-				->addButton("§l§8« §cĐóng §8»", -1, "", "close");
+				->setTitle("Xếp Hạng Donate")
+				->setContent("Hiện chưa có một ai nạp thẻ ủng hộ máy chủ...")
+				->addButton("Đóng", -1, "", "close");
 		}
 
 		arsort($napTheData);
@@ -126,23 +126,23 @@ final class TopNapTheForm {
 			if ($i >= $startIndex && $i < $startIndex + $itemsPerPage) {
 				$rank = $i + 1;
 				$formattedAmount = number_format($amountValue, 0, ",", ".");
-				$topList[] = "§8▪ §7Hạng §f" . $rank . " §7» §b" . $playerName . "\n  §7Đã nạp: §a" . $formattedAmount . "₫\n";
+				$topList[] = "Hạng " . $rank . " - " . $playerName . "\n  Đã nạp: " . $formattedAmount . "₫\n";
 			}
 
 			$i++;
 		}
 
 		$formattedTotal = number_format($serverTotalNapThe, 0, ",", ".");
-		$content = "§6⁕ §fBảng xếp hạng donate trang §a" . $page . "§8/§a" . $maxPage . " §6⁕\n\n";
+		$content = "Bảng xếp hạng donate trang " . $page . "/" . $maxPage . "\n\n";
 		$content .= implode("\n", $topList);
-		$content .= "\n\n§6⁕ §fTổng nạp từ người chơi§8: §a{$formattedTotal}₫ §6⁕";
+		$content .= "\n\nTổng nạp từ người chơi: {$formattedTotal}₫";
 
-		$form->setTitle("§8» §6Top Nạp Thẻ §8«");
-		$form->setContent("§7Danh sách những người chơi đóng góp nhiều nhất\n§fTrang §b" . $page . " §7/ §b" . $maxPage);
-		$form->addButton($page > 1 ? "§l§8« §a← Trang Trước" : "§l§8« §0← Trang Trước", -1, "", "prev")
-			->addButton("§l§8« §cĐóng §8»", -1, "", "close")
-			->addButton($page < $maxPage ? "§l§aTrang Sau → §8»" : "§l§0Trang Sau → §8»", -1, "", "next")
-			->addButton("§l§8« §eNhập Số Trang §8»", -1, "", "goto");
+		$form->setTitle("Top Nạp Thẻ");
+		$form->setContent("Danh sách những người chơi đóng góp nhiều nhất\nTrang " . $page . " / " . $maxPage);
+		$form->addButton("Trang Trước", -1, "", "prev")
+			->addButton("Đóng", -1, "", "close")
+			->addButton("Trang Sau", -1, "", "next")
+			->addButton("Nhập Số Trang", -1, "", "goto");
 
 		return $form;
 	}
@@ -164,14 +164,14 @@ final class TopNapTheForm {
 			$this->plugin->debugLogger->log("GoToPage form: Player " . $player->getName() . " entered page: " . $pageInput, "form");
 
 			if (!is_numeric($pageInput)) {
-				$player->sendMessage("§8[§c×§8] §7» §cVui lòng nhập một số hợp lệ.");
+				$player->sendMessage("Vui lòng nhập một số hợp lệ.");
 				$this->send($player, $currentPage);
 				return;
 			}
 
 			$pageNumber = (int) $pageInput;
 			if ($pageNumber < 1 || $pageNumber > $maxPage) {
-				$player->sendMessage("§8[§c×§8] §7» §cSố trang phải từ 1 đến {$maxPage}.");
+				$player->sendMessage("Số trang phải từ 1 đến {$maxPage}.");
 				$this->send($player, $currentPage);
 				return;
 			}
@@ -180,8 +180,8 @@ final class TopNapTheForm {
 			$this->send($player, $pageNumber);
 		});
 
-		$form->setTitle("§8» §6Chuyển Trang §8«");
-		$form->addInput("§7Nhập số trang muốn đến §8(1 - " . $maxPage . ")", "Ví dụ: 2", "", "page");
+		$form->setTitle("Chuyển Trang");
+		$form->addInput("Nhập số trang muốn đến (1 - " . $maxPage . ")", "Ví dụ: 2", "", "page");
 
 		$player->sendForm($form);
 	}
