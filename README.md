@@ -46,6 +46,7 @@ Sử dụng plugin này đồng nghĩa với việc bạn chấp nhận các đi
 public const PARTNER_ID = "PARTNER_ID_CUA_BAN";
 public const PARTNER_KEY = "PARTNER_KEY_CUA_BAN";
 ```
+3. Plugin đã nhúng sẵn `FormAPI` trong `src/utils/FormAPI`, nên không cần cài thêm `pmforms` hoặc plugin form bên ngoài.
 
 #### Bước 3. Thiết lập Callback URL (Tham khảo - Có thể bỏ qua)
 
