@@ -29,7 +29,7 @@ trait NapTheTopNapTheTrait {
 		$maxPage = ceil($totalPlayers / $itemsPerPage);
 		$page = min($maxPage, $page);
 
-		$sender->sendMessage(Constant::PREFIX . "Bảng xếp hạng nạp thẻ trang {$page}/{$maxPage} (/topdonate <trang>)");
+		$sender->sendMessage(Constant::PREFIX . "Bảng xếp hạng nạp thẻ trang {$page}/{$maxPage} (/topnapthe <trang>)");
 
 		$startIndex = ($page - 1) * $itemsPerPage;
 		$i = 0;

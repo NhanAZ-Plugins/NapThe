@@ -197,11 +197,11 @@ class NapThe extends PluginBase {
 						return true;
 					} else {
 						// Hiển thị hướng dẫn sử dụng
-						$sender->sendMessage(Constant::PREFIX . "Hướng dẫn sử dụng lệnh /donate:");
-						$sender->sendMessage("  /napthe [tên] [telco] [mã thẻ] [serial] [mệnh giá]");
-						$sender->sendMessage("  Ví dụ: /napthe NhanAZ VIETTEL 123456789012 123456789 50000");
-						$sender->sendMessage("  Loại thẻ: VIETTEL, MOBIFONE, VINAPHONE");
-						$sender->sendMessage("  Mệnh giá: 10k, 20k, 50k, 100k, 200k, 500k");
+						$sender->sendMessage(Constant::PREFIX . "Hướng dẫn sử dụng lệnh /napthe:");
+						$sender->sendMessage("/napthe [tên] [telco] [mã thẻ] [serial] [mệnh giá]");
+						$sender->sendMessage("Ví dụ: /napthe NhanAZ VIETTEL 123456789012 123456789 50000");
+						$sender->sendMessage("Loại thẻ: VIETTEL, MOBIFONE, VINAPHONE");
+						$sender->sendMessage("Mệnh giá: 10k, 20k, 50k, 100k, 200k, 500k");
 
 						// Hiển thị danh sách người chơi trực tuyến để tham khảo
 						$onlinePlayers = $this->getServer()->getOnlinePlayers();

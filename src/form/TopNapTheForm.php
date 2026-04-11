@@ -100,7 +100,7 @@ final class TopNapTheForm {
 		if (empty($napTheData)) {
 			$this->plugin->debugLogger->log("TopNapThe form: No donation data found, showing empty message", "form");
 			return $form
-				->setTitle("Xếp Hạng Donate")
+				->setTitle("Xếp Hạng Nạp Thẻ")
 				->setContent("Hiện chưa có một ai nạp thẻ ủng hộ máy chủ...")
 				->addButton("Đóng", -1, "", "close");
 		}
@@ -133,7 +133,7 @@ final class TopNapTheForm {
 		}
 
 		$formattedTotal = number_format($serverTotalNapThe, 0, ",", ".");
-		$content = "Bảng xếp hạng donate trang " . $page . "/" . $maxPage . "\n\n";
+		$content = "Bảng xếp hạng nạp thẻ trang " . $page . "/" . $maxPage . "\n\n";
 		$content .= implode("\n", $topList);
 		$content .= "\n\nTổng nạp từ người chơi: {$formattedTotal}₫";
 

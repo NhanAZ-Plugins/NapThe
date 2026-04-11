@@ -12,7 +12,7 @@ trait SingletonTrait {
 		self::$instance = $instance;
 	}
 
-	public static function getInstance() : Donate {
+	public static function getInstance() : NapThe {
 		return self::$instance;
 	}
 }
