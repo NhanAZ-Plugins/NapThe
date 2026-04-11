@@ -61,7 +61,7 @@ class NapThe extends PluginBase {
 
 		// Kiểm tra tài khoản API có hợp lệ không
 		if (Constant::PARTNER_ID === "" || Constant::PARTNER_KEY === "") {
-			$this->getLogger()->error("Vui lòng cấu hình partner_id và partner_key trong src/Constant.php!");
+			$this->getLogger()->error("Vui lòng cấu hình PARTNER_ID và PARTNER_KEY trong src/Constant.php!");
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}

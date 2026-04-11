@@ -3,8 +3,8 @@ name: NapThe
 version: 1.0.0
 main: NapThe\NapThe
 src-namespace-prefix: NapThe
-api: [5.0.0]
-authors: [NhanAZ, hachkingtohach1, TungstenVN]
+api: 5.0.0
+author: NhanAZ
 description: "Plugin nạp thẻ cho máy chủ PocketMine-MP sử dụng API của trumthe.vn"
 website: https://github.com/NhanAZ/Donate
 
