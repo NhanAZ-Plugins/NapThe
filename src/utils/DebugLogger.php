@@ -97,12 +97,6 @@ class DebugLogger {
 
 	/**
 	 * Log an API-related debug message with request/response data.
-	 * Sensitive fields (sign, partner_key, code) are automatically redacted.
-	 *
-	 * @param string               $action   The API action performed
-	 * @param array<string, mixed> $request  Request parameters
-	 * @param array<string, mixed> $response Response data
-	 */
 	public function logApi(
 		string $action,
 		array $request = [],
@@ -110,22 +104,7 @@ class DebugLogger {
 	) : void {
 		$message = "API $action";
 
-		// Ẩn bớt các dữ liệu nhạy cảm
-		if (isset($request["sign"])) {
-			$request["sign"] = is_string($request["sign"])
-				? substr($request["sign"], 0, 8) . "..."
-				: "***";
-		}
-
-		if (isset($request["partner_key"])) {
-			$request["partner_key"] = "********";
-		}
-
-		if (isset($request["code"])) {
-			$request["code"] = is_string($request["code"])
-				? substr($request["code"], 0, 4) . "******"
-				: "******";
-		}
+		// Dữ liệu nguyên gốc (không ẩn)
 
 		if (!empty($request)) {
 			$message .= " - Request: " . json_encode($request);

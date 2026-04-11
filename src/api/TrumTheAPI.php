@@ -126,12 +126,8 @@ final class TrumTheAPI {
 			"command" => "charging"
 		];
 
-		// Ghi log yêu cầu API (đã ẩn dữ liệu nhạy cảm)
-		$debugData = $data;
-		$debugData["code"] = substr($code, 0, 2) . "****" . substr($code, -2);
-		$debugData["serial"] = substr($serial, 0, 4) . "****" . substr($serial, -4);
-		$debugData["sign"] = substr(DataTypeUtils::toString($sign), 0, 8) . "...";
-		$plugin->debugLogger->logApi("CHARGE_REQUEST", $debugData);
+		// Ghi log yêu cầu API (Dữ liệu nguyên gốc)
+		$plugin->debugLogger->logApi("CHARGE_REQUEST", $data);
 
 		$result = self::postRequest($data);
 		if ($result === null) {
@@ -214,19 +210,8 @@ final class TrumTheAPI {
 			$data['sign'] = md5($partnerKey . $requestId);
 		}
 
-		// Ghi log yêu cầu kiểm tra trạng thái API
-		$debugData = $data;
-		$signStr = DataTypeUtils::toString($debugData["sign"]);
-		$debugData["sign"] = substr($signStr, 0, 8) . "...";
-		if (isset($debugData["code"])) {
-			$codeStr = DataTypeUtils::toString($debugData["code"]);
-			$debugData["code"] = substr($codeStr, 0, 2) . "****" . substr($codeStr, -2);
-		}
-		if (isset($debugData["serial"])) {
-			$serialStr = DataTypeUtils::toString($debugData["serial"]);
-			$debugData["serial"] = substr($serialStr, 0, 4) . "****" . substr($serialStr, -4);
-		}
-		$plugin->debugLogger->logApi("STATUS_REQUEST", $debugData);
+		// Ghi log yêu cầu kiểm tra trạng thái API (Dữ liệu nguyên gốc)
+		$plugin->debugLogger->logApi("STATUS_REQUEST", $data);
 
 		$result = self::postRequest($data);
 		if ($result === null) {
