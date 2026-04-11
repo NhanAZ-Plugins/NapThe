@@ -44,11 +44,3 @@ location /trumthe/callback {
     proxy_set_header X-Real-IP $remote_addr;
 }
 ```
-
-### Hỗ trợ trumthe.vn
-
-Nếu cần hỗ trợ đấu tích hợp API gạch thẻ, vui lòng liên hệ:
-- **SĐT/Zalo**: 081.7577777 - 081.7377777
-- Đội ngũ hỗ trợ kỹ thuật trực 24/7
-- Hỗ trợ chuyển trạng thái từ "Đang tắt" thành "Hoạt động"
-- Hỗ trợ giải đáp mọi thắc mắc về việc tích hợp API
