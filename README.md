@@ -2,7 +2,7 @@
 
 #### Bước 1. Đăng ký và thiết lập API TrumThe.vn
 
-1. Truy cập vào [TrumThe.vn](https://trumthe.vn/merchant) và đăng nhập hoặc đăng ký tài khoản
+1. Truy cập vào [trumthe.vn](https://trumthe.vn/) và đăng nhập hoặc đăng ký tài khoản
 2. Vào phần "KẾT NỐI API" trong menu chính
 3. Điền các thông tin cấu hình:
    - **Loại API**: Chọn "Đổi thẻ cào"
