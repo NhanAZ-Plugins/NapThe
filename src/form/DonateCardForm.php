@@ -69,7 +69,7 @@ final class DonateCardForm {
 			$code = DataTypeUtils::toString($data["code"] ?? "");
 
 			if ($serial === "" || $code === "") {
-				$player->sendMessage(Constant::PREFIX . "§cVui lòng không để trống số sê-ri hoặc mã thẻ!");
+				$player->sendMessage(Constant::PREFIX . "§8[§c×§8] §cVui lòng không để trống số sê-ri hoặc mã thẻ!");
 				$this->plugin->debugLogger->log("Player {$player->getName()} submitted form with empty serial or code", "payment");
 				return;
 			}
@@ -111,11 +111,11 @@ final class DonateCardForm {
 			$this->plugin->debugLogger->log("Card processing failed immediately for {$player->getName()} - Reason: {$response->getMessage()}", "payment");
 		});
 
-		$form->setTitle("Nạp Thẻ")
-			->addDropdown("Loại thẻ", Constant::TELCO_DISPLAY, 0, "telco")
-			->addDropdown("Mệnh giá", Constant::AMOUNT_DISPLAY, 0, "amount")
-			->addInput("Số sê-ri", "Ví dụ: 10004783347874", null, "serial")
-			->addInput("Mã thẻ", "Ví dụ: 312821445892982", null, "code");
+		$form->setTitle("§l§f⁕ §8[§6Nạp Thẻ§8] §f⁕")
+			->addDropdown("§fLoại thẻ", Constant::TELCO_DISPLAY, 0, "telco")
+			->addDropdown("§fMệnh giá", Constant::AMOUNT_DISPLAY, 0, "amount")
+			->addInput("§fSố sê-ri", "Ví dụ: 10004783347874", null, "serial")
+			->addInput("§fMã thẻ", "Ví dụ: 312821445892982", null, "code");
 
 		return $form;
 	}

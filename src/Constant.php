@@ -9,7 +9,7 @@ namespace Donate;
  */
 class Constant {
 	/** Plugin prefix for messages */
-	public const PREFIX = "§f§l[§6Nạp Thẻ§f] ";
+	public const PREFIX = "§8«§6Nạp Thẻ§8» §r";
 
 	/** Edit API credentials directly here instead of using config.yml */
 	public const PARTNER_ID = "5093830561";

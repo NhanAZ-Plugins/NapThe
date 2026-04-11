@@ -118,25 +118,25 @@ class Donate extends PluginBase {
 						// Kiểm tra tính hợp lệ của telco
 						$validTelcos = ["VIETTEL", "MOBIFONE", "VINAPHONE", "VIETNAMOBILE", "ZING"];
 						if (!in_array($telco, $validTelcos, true)) {
-							$sender->sendMessage(Constant::PREFIX . "§cLoại thẻ không hợp lệ. Các loại thẻ hỗ trợ: " . implode(", ", $validTelcos));
+							$sender->sendMessage(Constant::PREFIX . "§8[§c×§8] §cLoại thẻ không hợp lệ§7. Hỗ trợ§8: §f" . implode("§7, §f", $validTelcos));
 							return true;
 						}
 
 						// Kiểm tra mệnh giá
 						$validAmounts = [10000, 20000, 30000, 50000, 100000, 200000, 300000, 500000, 1000000];
 						if (!in_array($amount, $validAmounts, true)) {
-							$sender->sendMessage(Constant::PREFIX . "§cMệnh giá không hợp lệ. Các mệnh giá hỗ trợ: " . implode(", ", $validAmounts));
+							$sender->sendMessage(Constant::PREFIX . "§8[§c×§8] §cMệnh giá không hợp lệ§7. Hỗ trợ§8: §f" . implode("§7, §f", $validAmounts));
 							return true;
 						}
 
 						// Kiểm tra độ dài mã thẻ và serial
 						if (strlen($code) < 10) {
-							$sender->sendMessage(Constant::PREFIX . "§cMã thẻ không hợp lệ, quá ngắn");
+							$sender->sendMessage(Constant::PREFIX . "§8[§c×§8] §cMã thẻ không hợp lệ§7, quá ngắn");
 							return true;
 						}
 
 						if (strlen($serial) < 10) {
-							$sender->sendMessage(Constant::PREFIX . "§cSerial không hợp lệ, quá ngắn");
+							$sender->sendMessage(Constant::PREFIX . "§8[§c×§8] §cSerial không hợp lệ§7, quá ngắn");
 							return true;
 						}
 
@@ -159,11 +159,11 @@ class Donate extends PluginBase {
 
 							// Thông báo kết quả ban đầu
 							if ($response->isSuccessful() || $response->isPending()) {
-								$sender->sendMessage(Constant::PREFIX . "§aĐã gửi yêu cầu nạp thẻ cho người chơi §f" . $playerName);
-								$sender->sendMessage(Constant::PREFIX . "§aThẻ đang được xử lý, mã giao dịch: §f" . substr($requestId, 0, 10));
-								$targetPlayer->sendMessage(Constant::PREFIX . "§aAdmin đã nạp thẻ giúp bạn, hệ thống đang xử lý");
+								$sender->sendMessage(Constant::PREFIX . "§8[§a+§8] §aĐã gửi yêu cầu nạp thẻ cho người chơi §f" . $playerName);
+								$sender->sendMessage(Constant::PREFIX . "§7Mã giao dịch§8: §f" . substr($requestId, 0, 10));
+								$targetPlayer->sendMessage(Constant::PREFIX . "§8[§a+§8] §aAdmin đã nạp thẻ giúp bạn§7, hệ thống đang xử lý");
 							} else {
-								$sender->sendMessage(Constant::PREFIX . "§cCó lỗi xảy ra khi nạp thẻ: §f" . $response->getMessage());
+								$sender->sendMessage(Constant::PREFIX . "§8[§c×§8] §cCó lỗi xảy ra khi nạp thẻ§8: §f" . $response->getMessage());
 							}
 						} else {
 							// Nếu người chơi offline, sử dụng task
@@ -190,25 +190,26 @@ class Donate extends PluginBase {
 							// Thêm vào danh sách thanh toán đang xử lý
 							$this->paymentManager->addSamplePayment($requestId, $payment);
 
-							$sender->sendMessage(Constant::PREFIX . "§aĐã gửi yêu cầu nạp thẻ cho người chơi §f" . $playerName . " §a(đang offline)");
-							$sender->sendMessage(Constant::PREFIX . "§aThẻ đang được xử lý, mã giao dịch: §f" . substr($requestId, 0, 10));
+							$sender->sendMessage(Constant::PREFIX . "§8[§a+§8] §aĐã gửi yêu cầu nạp thẻ cho người chơi §f" . $playerName . " §7(đang offline)");
+							$sender->sendMessage(Constant::PREFIX . "§7Mã giao dịch§8: §f" . substr($requestId, 0, 10));
 						}
 
 						return true;
 					} else {
 						// Hiển thị hướng dẫn sử dụng
-						$sender->sendMessage(Constant::PREFIX . "§aSử dụng: §f/donate <tên người chơi> <telco> <mã thẻ> <serial> <mệnh giá>");
-						$sender->sendMessage(Constant::PREFIX . "§aVí dụ: §f/donate NhanAZ VIETTEL 123456789012 987654321098 50000");
-						$sender->sendMessage(Constant::PREFIX . "§aCác loại thẻ hỗ trợ: §fVIETTEL, MOBIFONE, VINAPHONE");
-						$sender->sendMessage(Constant::PREFIX . "§aCác mệnh giá hỗ trợ: §f10000, 20000, 50000, 100000, 200000, 500000");
+						$sender->sendMessage(Constant::PREFIX . "§eSử dụng§8:");
+						$sender->sendMessage("  §8[§7-§8] §f/donate §8[§ftên§8] [§ftelco§8] [§fmã thẻ§8] [§fserial§8] [§fmệnh giá§8]");
+						$sender->sendMessage("  §8[§7-§8] §eVí dụ§8: §f/donate NhanAZ VIETTEL 123456789012 987654321098 50000");
+						$sender->sendMessage("  §8[§7-§8] §eLoại thẻ§8: §fVIETTEL§7, §fMOBIFONE§7, §fVINAPHONE");
+						$sender->sendMessage("  §8[§7-§8] §eMệnh giá§8: §f10000§7, §f20000§7, §f50000§7, §f100000§7, §f200000§7, §f500000");
 
 						// Hiển thị danh sách người chơi trực tuyến để tham khảo
 						$onlinePlayers = $this->getServer()->getOnlinePlayers();
 						if (count($onlinePlayers) > 0) {
-							$sender->sendMessage(Constant::PREFIX . "§aNgười chơi trực tuyến:");
+							$sender->sendMessage(Constant::PREFIX . "§eNgười chơi trực tuyến§8:");
 
 							foreach ($onlinePlayers as $player) {
-								$sender->sendMessage("§8• §f" . $player->getName());
+								$sender->sendMessage("  §8[§7-§8] §f" . $player->getName());
 							}
 						}
 					}

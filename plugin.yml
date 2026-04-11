@@ -14,11 +14,11 @@ commands:
   donate:
     description: "§eMở giao diện nạp thẻ"
     permission: donate.command.donate
-    usage: "§7• §f/donate §7- Mở giao diện nạp thẻ cho người chơi§r\n§7• §f/donate <tên> <telco> <mã> <serial> <mệnh giá> §7- Nạp thẻ từ console§r"
+    usage: "§7- §f/donate §8→ §7Mở giao diện nạp thẻ cho người chơi§r\n§7- §f/donate §8[§ftên§8] [§ftelco§8] [§fmã§8] [§fserial§8] [§fmệnh giá§8] §8→ §7Nạp thẻ từ console§r"
   topdonate:
     description: "§eXem bảng xếp hạng người nạp thẻ"
     permission: donate.command.topdonate
-    usage: "§7• §f/topdonate [trang] §7- Xem bảng xếp hạng người nạp thẻ§r"
+    usage: "§7- §f/topdonate §8[§ftrang§8] §8→ §7Xem bảng xếp hạng người nạp thẻ§r"
 
 permissions:
   donate.command.donate:

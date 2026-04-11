@@ -29,7 +29,7 @@ trait DonateTopDonateTrait {
 		$maxPage = ceil($totalPlayers / $itemsPerPage);
 		$page = min($maxPage, $page);
 
-		$sender->sendMessage(Constant::PREFIX . "--- Bảng xếp hạng nạp thẻ trang $page/$maxPage (/topdonate <trang>) ---");
+		$sender->sendMessage(Constant::PREFIX . "§6⁕ §fBảng xếp hạng nạp thẻ trang §a{$page}§8/§a{$maxPage} §7(/topdonate <trang>) §6⁕");
 
 		$startIndex = ($page - 1) * $itemsPerPage;
 		$i = 0;
@@ -47,7 +47,7 @@ trait DonateTopDonateTrait {
 			if ($i >= $startIndex && $i < $startIndex + $itemsPerPage) {
 				$rank = $i + 1;
 				$formattedAmount = number_format($amountValue, 0, ".", ".");
-				$sender->sendMessage("$rank. $playerName: {$formattedAmount}₫");
+				$sender->sendMessage("§f$rank. §e{$playerName}§8: §a{$formattedAmount}₫");
 			}
 
 			$i++;
@@ -58,6 +58,6 @@ trait DonateTopDonateTrait {
 		}
 
 		$formattedTotal = number_format($serverTotalDonated, 0, ".", ".");
-		$sender->sendMessage(Constant::PREFIX . "Tổng số tiền nạp thẻ từ người chơi của máy chủ là: {$formattedTotal}₫");
+		$sender->sendMessage(Constant::PREFIX . "§fTổng tiền nạp từ toàn máy chủ§8: §a{$formattedTotal}₫");
 	}
 }
