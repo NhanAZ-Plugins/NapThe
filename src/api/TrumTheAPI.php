@@ -27,7 +27,7 @@ final class TrumTheAPI {
 	private static array $lastApiRequests = [];
 
 	/** @var int Cooldown between API requests in seconds */
-	private static int $apiCooldown = 2; // 2 seconds cooldown
+	private static int $apiCooldown = Constant::API_COOLDOWN;
 
 	/**
 	 * Set the API request cooldown
@@ -109,14 +109,11 @@ final class TrumTheAPI {
 			);
 		}
 
-		$config = $plugin->getConfig();
-
-		// Safely get partner ID and key
-		$partnerId = DataTypeUtils::toString($config->get("partner_id", ""));
-		$partnerKey = DataTypeUtils::toString($config->get("partner_key", ""));
+		$partnerId = Constant::PARTNER_ID;
+		$partnerKey = Constant::PARTNER_KEY;
 
 		if ($partnerId === "" || $partnerKey === "") {
-			throw new \InvalidArgumentException("Partner ID and Partner Key must be configured in config.yml");
+			throw new \InvalidArgumentException("Partner ID and Partner Key must be configured in src/Constant.php");
 		}
 
 		$sign = md5($partnerKey . $code . $serial);
@@ -226,11 +223,8 @@ final class TrumTheAPI {
 			);
 		}
 
-		$config = $plugin->getConfig();
-
-		// Safely get partner ID and key
-		$partnerId = DataTypeUtils::toString($config->get("partner_id", ""));
-		$partnerKey = DataTypeUtils::toString($config->get("partner_key", ""));
+		$partnerId = Constant::PARTNER_ID;
+		$partnerKey = Constant::PARTNER_KEY;
 
 		// Tạo dữ liệu cơ bản
 		$data = [
@@ -340,15 +334,8 @@ final class TrumTheAPI {
 	 */
 	private static function postRequest(array $data) : ?InternetRequestResult {
 		try {
-			$plugin = Donate::getInstance();
-			$config = $plugin->getConfig();
-
-			// Safely get API URL
-			$apiUrl = DataTypeUtils::toString($config->get("api_url", Constant::URL), Constant::URL);
-
-			// Safely get timeout
-			$timeout = DataTypeUtils::toInt($config->get("api_timeout", 10), 10);
-			$timeout = max(1, $timeout); // Ensure at least 1 second timeout
+			$apiUrl = Constant::URL;
+			$timeout = max(1, Constant::API_TIMEOUT);
 
 			// JSON encode the data for POST request
 			$jsonData = json_encode($data);

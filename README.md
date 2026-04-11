@@ -40,12 +40,11 @@ Sử dụng plugin này đồng nghĩa với việc bạn chấp nhận các đi
 
 #### Bước 2. Cấu hình plugin
 
-1. Mở file `resources/config.yml`
-2. Điền thông tin đã đăng ký:
-```yml
-# Partner credentials (từ trumthe.vn)
-partner_id: "PARTNER_ID_CỦA_BẠN"  # ID đối tác
-partner_key: "PARTNER_KEY_CỦA_BẠN" # Khóa API đối tác
+1. Mở file `src/Constant.php`
+2. Điền thông tin đã đăng ký trực tiếp trong mã nguồn:
+```php
+public const PARTNER_ID = "PARTNER_ID_CUA_BAN";
+public const PARTNER_KEY = "PARTNER_KEY_CUA_BAN";
 ```
 
 #### Bước 3. Thiết lập Callback URL (Tham khảo - Có thể bỏ qua)

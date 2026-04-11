@@ -14,7 +14,6 @@ use Ramsey\Uuid\Uuid;
 use function arsort;
 use function ceil;
 use function count;
-use function filter_var;
 use function implode;
 use function is_array;
 use function is_numeric;
@@ -25,7 +24,6 @@ use function number_format;
 use function strpos;
 use function substr;
 use function time;
-use const FILTER_VALIDATE_INT;
 
 class FormManager {
 	private Donate $plugin;
@@ -50,11 +48,7 @@ class FormManager {
 
 	public function __construct(Donate $plugin) {
 		$this->plugin = $plugin;
-
-		// Load form cooldown from config
-		$config = $plugin->getConfig();
-		$configValue = $config->getNested("anti_spam.form_cooldown", 5);
-		$this->formCooldown = max(1, filter_var($configValue, FILTER_VALIDATE_INT, ["options" => ["default" => 5]]));
+		$this->formCooldown = max(1, Constant::FORM_COOLDOWN);
 
 		$plugin->debugLogger->log("Form cooldown set to {$this->formCooldown} seconds", "form");
 	}

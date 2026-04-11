@@ -29,7 +29,6 @@ use function file_exists;
 use function file_put_contents;
 use function filemtime;
 use function filesize;
-use function filter_var;
 use function floor;
 use function fopen;
 use function implode;
@@ -51,7 +50,6 @@ use function time;
 use function trim;
 use function uniqid;
 use function version_compare;
-use const FILTER_VALIDATE_INT;
 use const PHP_VERSION;
 
 class Donate extends PluginBase {
@@ -86,27 +84,7 @@ class Donate extends PluginBase {
 			return;
 		}
 
-		// Initialize configuration
-		$this->saveDefaultConfig();
-
-		// Add default anti-spam settings if they don't exist
-		$config = $this->getConfig();
-		if (!$config->exists("anti_spam")) {
-			$config->set("anti_spam", [
-				"form_cooldown" => 5,  // Seconds between form submissions
-				"api_cooldown" => 2    // Seconds between API requests
-			]);
-			$config->save();
-		}
-
-		// Apply anti-spam settings
-		$formCooldownValue = $config->getNested("anti_spam.form_cooldown", 5);
-		$apiCooldownValue = $config->getNested("anti_spam.api_cooldown", 2);
-		$formCooldown = filter_var($formCooldownValue, FILTER_VALIDATE_INT, ["options" => ["default" => 5]]);
-		$apiCooldown = filter_var($apiCooldownValue, FILTER_VALIDATE_INT, ["options" => ["default" => 2]]);
-
-		// Configure API cooldown
-		api\TrumTheAPI::setApiCooldown($apiCooldown);
+		api\TrumTheAPI::setApiCooldown(Constant::API_COOLDOWN);
 
 		$this->donateData = new Config($this->getDataFolder() . "donateData.yml", Config::YAML);
 
@@ -121,8 +99,8 @@ class Donate extends PluginBase {
 		$this->debugLogger = new DebugLogger($this);
 
 		// Check for valid API credentials
-		if ($this->getConfig()->get("partner_id", "") === "" || $this->getConfig()->get("partner_key", "") === "") {
-			$this->getLogger()->error("Vui lòng cấu hình partner_id và partner_key trong config.yml!");
+		if (Constant::PARTNER_ID === "" || Constant::PARTNER_KEY === "") {
+			$this->getLogger()->error("Vui lòng cấu hình partner_id và partner_key trong src/Constant.php!");
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
@@ -470,12 +448,8 @@ class Donate extends PluginBase {
 		$this->donateData->setNested($playerName, $safeAmount + $amount);
 		$this->donateData->save();
 
-		// Get bonus multiplier from config
-		$multiplierRaw = $this->getConfig()->get("bonus_multiplier", 1.0);
-		$multiplier = is_numeric($multiplierRaw) ? (float) $multiplierRaw : 1.0;
-
 		// Calculate bonus amount
-		$bonusAmount = (int) ($amount * $multiplier);
+		$bonusAmount = (int) ($amount * Constant::BONUS);
 
 		// Add any additional reward code here
 		// Example: EconomyAPI::getInstance()->addMoney($playerName, $bonusAmount);
@@ -581,15 +555,8 @@ class Donate extends PluginBase {
 	 * Toggle debug category
 	 */
 	private function toggleDebugCategory(CommandSender $sender, string $category) : void {
-		$config = $this->getConfig();
-		$currentValue = (bool) $config->getNested("debug.categories." . $category, false);
-		$newValue = !$currentValue;
+		$newValue = $this->debugLogger->toggleCategory($category);
 
-		$config->setNested("debug.categories." . $category, $newValue);
-		$config->save();
-
-		// Reload debug configuration
-		$this->debugLogger->loadConfig();
 
 		$status = $newValue ? "§aBật" : "§cTắt";
 		$sender->sendMessage(utils\MessageTranslator::formatInfoMessage("Đã " . $status . " §edebug cho danh mục §f" . $category));
@@ -599,12 +566,7 @@ class Donate extends PluginBase {
 	 * Set debug enabled status
 	 */
 	private function setDebugEnabled(CommandSender $sender, bool $enabled) : void {
-		$config = $this->getConfig();
-		$config->setNested("debug.enabled", $enabled);
-		$config->save();
-
-		// Reload debug configuration
-		$this->debugLogger->loadConfig();
+		$this->debugLogger->setEnabled($enabled);
 
 		$status = $enabled ? "§aBật" : "§cTắt";
 		$sender->sendMessage(utils\MessageTranslator::formatInfoMessage("Đã " . $status . " §edebug"));
@@ -614,15 +576,7 @@ class Donate extends PluginBase {
 	 * Toggle notify admins setting
 	 */
 	private function toggleNotifyAdmins(CommandSender $sender) : void {
-		$config = $this->getConfig();
-		$currentValue = (bool) $config->getNested("debug.notify_admins", false);
-		$newValue = !$currentValue;
-
-		$config->setNested("debug.notify_admins", $newValue);
-		$config->save();
-
-		// Reload debug configuration
-		$this->debugLogger->loadConfig();
+		$newValue = $this->debugLogger->toggleNotifyAdmins();
 
 		$status = $newValue ? "§aBật" : "§cTắt";
 		$sender->sendMessage(utils\MessageTranslator::formatInfoMessage("Đã " . $status . " §ethông báo debug cho admin"));
@@ -632,10 +586,9 @@ class Donate extends PluginBase {
 	 * List all debug categories and their status
 	 */
 	private function listDebugCategories(CommandSender $sender) : void {
-		$config = $this->getConfig();
-		$enabled = (bool) $config->getNested("debug.enabled", false);
-		$notifyAdmins = (bool) $config->getNested("debug.notify_admins", false);
-		$categories = $config->getNested("debug.categories", []);
+		$enabled = $this->debugLogger->isDebugEnabled();
+		$notifyAdmins = $this->debugLogger->shouldNotifyAdmins();
+		$categories = $this->debugLogger->getEnabledCategories();
 
 		$enabledStatus = $enabled ? "§aBật" : "§cTắt";
 		$notifyStatus = $notifyAdmins ? "§aBật" : "§cTắt";

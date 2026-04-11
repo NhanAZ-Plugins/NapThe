@@ -6,6 +6,7 @@ namespace Donate\manager;
 
 use Donate\api\ChargeResponse;
 use Donate\api\TrumTheAPI;
+use Donate\Constant;
 use Donate\Donate;
 use Donate\payment\CardPayment;
 use Donate\payment\PaymentStatus;
@@ -32,7 +33,7 @@ class PaymentManager {
 	public function startPaymentCheckTask() : void {
 		$this->plugin->getScheduler()->scheduleRepeatingTask(
 			new PaymentCheckTask($this),
-			20 * 30  // Check every 30 seconds
+			20 * Constant::CHECK_INTERVAL
 		);
 	}
 
@@ -138,7 +139,7 @@ class PaymentManager {
 						"Payment is PENDING, scheduling immediate checks for RequestID: $requestId",
 						"payment"
 					);
-					$this->scheduleImmediateCheck($requestId, 5, 12); // Kiểm tra mỗi 5 giây, tối đa 12 lần (1 phút)
+					$this->scheduleImmediateCheck($requestId);
 				}
 			} else {
 				if (isset($this->plugin->debugLogger)) {
@@ -257,7 +258,7 @@ class PaymentManager {
 							"Payment still PENDING after {$pendingTime}s, scheduling immediate checks for RequestID: $requestId",
 							"payment"
 						);
-						$this->scheduleImmediateCheck($requestId, 5, 12); // Kiểm tra mỗi 5 giây, tối đa 12 lần (1 phút)
+						$this->scheduleImmediateCheck($requestId);
 					}
 
 					continue;
@@ -392,7 +393,11 @@ class PaymentManager {
 	 * @param int    $retryDelay Thời gian chờ giữa các lần kiểm tra (giây)
 	 * @param int    $maxRetries Số lần kiểm tra tối đa
 	 */
-	public function scheduleImmediateCheck(string $requestId, int $retryDelay = 5, int $maxRetries = 12) : void {
+	public function scheduleImmediateCheck(
+		string $requestId,
+		int $retryDelay = Constant::IMMEDIATE_CHECK_INTERVAL,
+		int $maxRetries = Constant::MAX_IMMEDIATE_CHECKS
+	) : void {
 		$payment = $this->getPayment($requestId);
 
 		if ($payment === null) {

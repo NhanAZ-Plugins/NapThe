@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Donate\utils;
 
+use Donate\Constant;
 use Donate\Donate;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 use function date;
 use function dirname;
 use function file_put_contents;
-use function is_array;
 use function is_scalar;
 use function is_string;
 use function json_encode;
@@ -43,7 +43,7 @@ class DebugLogger {
 	 */
 	public function __construct(private Donate $plugin) {
 		self::$instance = $this;
-		$this->loadConfig();
+		$this->loadDefaults();
 	}
 
 	/**
@@ -54,20 +54,46 @@ class DebugLogger {
 	}
 
 	/**
-	 * Load debug configuration from plugin config
+	 * Load debug defaults from source constants.
 	 */
-	public function loadConfig() : void {
-		$config = $this->plugin->getConfig();
-		$this->enabled = (bool) $config->getNested("debug.enabled", false);
-		$this->notifyAdmins = (bool) $config->getNested("debug.notify_admins", false);
+	public function loadDefaults() : void {
+		$this->enabled = Constant::DEBUG_ENABLED;
+		$this->notifyAdmins = Constant::DEBUG_NOTIFY_ADMINS;
+		$this->enabledCategories = [];
 
-		// Load enabled categories
-		$categories = $config->getNested("debug.categories", []);
-		if (is_array($categories)) {
-			foreach ($categories as $category => $enabled) {
-				$this->enabledCategories[(string) $category] = (bool) $enabled;
-			}
+		foreach (Constant::DEBUG_CATEGORIES as $category => $enabled) {
+			$this->enabledCategories[(string) $category] = (bool) $enabled;
 		}
+	}
+
+	public function isDebugEnabled() : bool {
+		return $this->enabled;
+	}
+
+	public function setEnabled(bool $enabled) : void {
+		$this->enabled = $enabled;
+	}
+
+	public function shouldNotifyAdmins() : bool {
+		return $this->notifyAdmins;
+	}
+
+	public function toggleNotifyAdmins() : bool {
+		$this->notifyAdmins = !$this->notifyAdmins;
+		return $this->notifyAdmins;
+	}
+
+	public function toggleCategory(string $category) : bool {
+		$newValue = !($this->enabledCategories[$category] ?? false);
+		$this->enabledCategories[$category] = $newValue;
+		return $newValue;
+	}
+
+	/**
+	 * @return array<string, bool>
+	 */
+	public function getEnabledCategories() : array {
+		return $this->enabledCategories;
 	}
 
 	/**
