@@ -101,8 +101,7 @@ final class TopNapTheForm {
 			$this->plugin->debugLogger->log("TopNapThe form: No donation data found, showing empty message", "form");
 			return $form
 				->setTitle("Xếp Hạng Nạp Thẻ")
-				->setContent("Hiện chưa có một ai nạp thẻ ủng hộ máy chủ...")
-				->addButton("Đóng", -1, "", "close");
+				->setContent("Hiện chưa có một ai nạp thẻ ủng hộ máy chủ...");
 		}
 
 		arsort($napTheData);
@@ -118,10 +117,15 @@ final class TopNapTheForm {
 		$i = 0;
 		$topList = [];
 		$serverTotalNapThe = 0;
+		$playerRank = null;
 
 		foreach ($napTheData as $playerName => $amount) {
 			$amountValue = is_numeric($amount) ? (int) $amount : 0;
 			$serverTotalNapThe += $amountValue;
+
+			if ($playerName === $player->getName()) {
+				$playerRank = $i + 1;
+			}
 
 			if ($i >= $startIndex && $i < $startIndex + $itemsPerPage) {
 				$rank = $i + 1;
@@ -133,14 +137,19 @@ final class TopNapTheForm {
 		}
 
 		$formattedTotal = number_format($serverTotalNapThe, 0, ",", ".");
-		$content = "Bảng xếp hạng nạp thẻ trang " . $page . "/" . $maxPage . "\n\n";
+		$content = "Danh sách những người chơi đóng góp nhiều nhất\nTrang " . $page . " / " . $maxPage . "\n\n";
 		$content .= implode("\n", $topList);
 		$content .= "\n\nTổng nạp từ người chơi: {$formattedTotal}₫";
+		
+		if ($playerRank !== null) {
+			$content .= "\nThứ hạng của bạn: " . $playerRank;
+		} else {
+			$content .= "\nThứ hạng của bạn: Chưa có xếp hạng";
+		}
 
 		$form->setTitle("Top Nạp Thẻ");
-		$form->setContent("Danh sách những người chơi đóng góp nhiều nhất\nTrang " . $page . " / " . $maxPage);
+		$form->setContent($content);
 		$form->addButton("Trang Trước", -1, "", "prev")
-			->addButton("Đóng", -1, "", "close")
 			->addButton("Trang Sau", -1, "", "next")
 			->addButton("Nhập Số Trang", -1, "", "goto");
 
