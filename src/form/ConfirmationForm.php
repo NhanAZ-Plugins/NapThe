@@ -19,10 +19,10 @@ final class ConfirmationForm {
 			}
 		});
 
-		$form->setTitle("§l§f⁕ §8[§6Xác nhận§8] §f⁕")
+		$form->setTitle("§8» §6Xác Nhận §8«")
 			->setContent("§f" . $message)
-			->setButton1("§l§8« §aXác nhận §8»")
-			->setButton2("§l§8« §cHủy §8»");
+			->setButton1("§8« §aXác Nhận §8»")
+			->setButton2("§8« §cHuỷ Bỏ §8»");
 
 		return $form;
 	}

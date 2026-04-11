@@ -222,21 +222,21 @@ class MessageTranslator {
 			}
 		}
 
-		return Constant::PREFIX . "§8[§c×§8] §c" . $translatedMessage;
+		return Constant::PREFIX . "§8[§c×§8] §7» §c" . $translatedMessage;
 	}
 
 	/**
 	 * Định dạng thông báo thành công với prefix
 	 */
 	public static function formatSuccessMessage(string $message) : string {
-		return Constant::PREFIX . "§8[§a+§8] §a" . $message;
+		return Constant::PREFIX . "§8[§a+§8] §7» §f" . $message;
 	}
 
 	/**
 	 * Định dạng thông báo thông tin với prefix
 	 */
 	public static function formatInfoMessage(string $message) : string {
-		return Constant::PREFIX . "§8[§e⁕§8] §e" . $message;
+		return Constant::PREFIX . "§8[§b!§8] §7» §f" . $message;
 	}
 
 	/**
