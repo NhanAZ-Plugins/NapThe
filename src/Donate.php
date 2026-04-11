@@ -74,8 +74,8 @@ class Donate extends PluginBase {
 
 	protected function onEnable() : void {
 		// Check PHP version
-		if (version_compare(PHP_VERSION, '8.3.0', '<')) {
-			$this->getLogger()->error("Plugin require PHP 8.3.0 or higher. Current version: " . PHP_VERSION);
+		if (version_compare(PHP_VERSION, '8.2.0', '<')) {
+			$this->getLogger()->error("Plugin require PHP 8.2.0 or higher. Current version: " . PHP_VERSION);
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
