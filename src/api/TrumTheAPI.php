@@ -65,10 +65,7 @@ final class TrumTheAPI {
 			$timeDiff = $currentTime - $lastTime;
 
 			if ($timeDiff < self::$apiCooldown) {
-				$plugin->logger->warning("[Donate/API] API request throttled - Type: $requestType - Too many requests");
-				if (isset($plugin->debugLogger)) {
-					$plugin->debugLogger->log("API request throttled ($requestType) - Needs to wait " . (self::$apiCooldown - $timeDiff) . " more seconds", "api");
-				}
+				$plugin->debugLogger->log("API request throttled ($requestType) - Needs to wait " . (self::$apiCooldown - $timeDiff) . " more seconds", "api");
 				return false;
 			}
 		}
@@ -130,73 +127,36 @@ final class TrumTheAPI {
 		];
 
 		// Log API request (masked sensitive data)
-		$plugin->logger->info("[Donate/API] Sending card charge request to TrumThe API - RequestID: $requestId, Telco: $telco, Amount: $amount");
-
-		// Debug logging - API request
-		if (isset($plugin->debugLogger)) {
-			// Clone the data to avoid modifying the original
-			$debugData = $data;
-			// Mask sensitive data
-			$debugData["code"] = substr($code, 0, 2) . "****" . substr($code, -2);
-			$debugData["serial"] = substr($serial, 0, 4) . "****" . substr($serial, -4);
-			$debugData["sign"] = substr(DataTypeUtils::toString($sign), 0, 8) . "...";
-
-			$plugin->debugLogger->logApi("CHARGE_REQUEST", $debugData);
-		}
+		$debugData = $data;
+		$debugData["code"] = substr($code, 0, 2) . "****" . substr($code, -2);
+		$debugData["serial"] = substr($serial, 0, 4) . "****" . substr($serial, -4);
+		$debugData["sign"] = substr(DataTypeUtils::toString($sign), 0, 8) . "...";
+		$plugin->debugLogger->logApi("CHARGE_REQUEST", $debugData);
 
 		$result = self::postRequest($data);
 		if ($result === null) {
-			// Log the connection failure
-			$plugin->logger->error("[Donate/API] Failed to connect to TrumThe API for card charge - RequestID: $requestId");
-
-			// Debug logging - API request failed
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->logApi("CHARGE_FAILED", [], ["error" => "Connection failed"]);
-			}
+			$plugin->debugLogger->logApi("CHARGE_FAILED", [], ["error" => "Connection failed", "requestId" => $requestId]);
 			return null;
 		}
 
 		$responseData = json_decode($result->getBody(), true);
 		if (!is_array($responseData)) {
-			// Log the response parse error
-			$plugin->logger->error("[Donate/API] Failed to parse TrumThe API response for card charge - RequestID: $requestId, Raw: " . substr($result->getBody(), 0, 100));
-
-			// Debug logging - API response parse error
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->logApi("CHARGE_PARSE_ERROR", [], ["raw" => substr($result->getBody(), 0, 100)]);
-			}
+			$plugin->debugLogger->logApi("CHARGE_PARSE_ERROR", [], ["requestId" => $requestId, "raw" => substr($result->getBody(), 0, 100)]);
 			return null;
 		}
 
 		// Log the API response
-		$status = $responseData['status'] ?? 'unknown';
-		$message = $responseData['message'] ?? 'no message';
-		$statusStr = DataTypeUtils::toString($status);
-		$messageStr = DataTypeUtils::toString($message);
-		$plugin->logger->info("[Donate/API] Received card charge response - RequestID: " . $requestId . ", Status: " . $statusStr . ", Message: " . $messageStr);
+		$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
+		$plugin->debugLogger->logApi("CHARGE_RESPONSE", [], $responseDataTyped);
 
-		// Special log for PENDING status to clarify it's being processed, not an error
+		// Special log for PENDING status
 		if (isset($responseData['message']) && $responseData['message'] === "PENDING") {
-			$plugin->logger->info("[Donate/API] Card is being processed - RequestID: $requestId, Status: PENDING. This is normal, not an error.");
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->log("Card with RequestID: $requestId is PENDING processing (status 99 with PENDING message). This is expected behavior.", "api");
-			}
+			$plugin->debugLogger->log("Card with RequestID: $requestId is PENDING processing (status 99 with PENDING message). This is expected behavior.", "api");
 		}
 
-		// Debug logging - API response
-		if (isset($plugin->debugLogger)) {
-			// Cast to array<string, mixed>
-			$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
-			$plugin->debugLogger->logApi("CHARGE_RESPONSE", [], $responseDataTyped);
-
-			// Log chi tiết thông báo lỗi để debug
-			if (isset($responseData['message'])) {
-				$messageContent = DataTypeUtils::toString($responseData['message']);
-				$plugin->debugLogger->log(
-					"API response message (raw): '" . $messageContent . "'",
-					"api"
-				);
-			}
+		if (isset($responseData['message'])) {
+			$messageContent = DataTypeUtils::toString($responseData['message']);
+			$plugin->debugLogger->log("API response message (raw): '" . $messageContent . "'", "api");
 		}
 
 		return ChargeResponse::fromArray(DataTypeUtils::toStringKeyedArray($responseData));
@@ -255,69 +215,37 @@ final class TrumTheAPI {
 		}
 
 		// Log API status check request
-		$plugin->logger->info("[Donate/API] Checking card status - RequestID: $requestId");
-
-		// Debug logging - API status check request
-		if (isset($plugin->debugLogger)) {
-			$debugData = $data;
-			$signStr = DataTypeUtils::toString($debugData["sign"]);
-			$debugData["sign"] = substr($signStr, 0, 8) . "...";
-			if (isset($debugData["code"])) {
-				$codeStr = DataTypeUtils::toString($debugData["code"]);
-				$debugData["code"] = substr($codeStr, 0, 2) . "****" . substr($codeStr, -2);
-			}
-			if (isset($debugData["serial"])) {
-				$serialStr = DataTypeUtils::toString($debugData["serial"]);
-				$debugData["serial"] = substr($serialStr, 0, 4) . "****" . substr($serialStr, -4);
-			}
-
-			$plugin->debugLogger->logApi("STATUS_REQUEST", $debugData);
+		$debugData = $data;
+		$signStr = DataTypeUtils::toString($debugData["sign"]);
+		$debugData["sign"] = substr($signStr, 0, 8) . "...";
+		if (isset($debugData["code"])) {
+			$codeStr = DataTypeUtils::toString($debugData["code"]);
+			$debugData["code"] = substr($codeStr, 0, 2) . "****" . substr($codeStr, -2);
 		}
+		if (isset($debugData["serial"])) {
+			$serialStr = DataTypeUtils::toString($debugData["serial"]);
+			$debugData["serial"] = substr($serialStr, 0, 4) . "****" . substr($serialStr, -4);
+		}
+		$plugin->debugLogger->logApi("STATUS_REQUEST", $debugData);
 
 		$result = self::postRequest($data);
 		if ($result === null) {
-			// Log the connection failure
-			$plugin->logger->error("[Donate/API] Failed to connect to TrumThe API for status check - RequestID: $requestId");
-
-			// Debug logging - API request failed
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->logApi("STATUS_FAILED", [], ["error" => "Connection failed"]);
-			}
+			$plugin->debugLogger->logApi("STATUS_FAILED", [], ["error" => "Connection failed", "requestId" => $requestId]);
 			return null;
 		}
 
 		$responseData = json_decode($result->getBody(), true);
 		if (!is_array($responseData)) {
-			// Log the response parse error
-			$plugin->logger->error("[Donate/API] Failed to parse TrumThe API response for status check - RequestID: $requestId, Raw: " . substr($result->getBody(), 0, 100));
-
-			// Debug logging - API response parse error
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->logApi("STATUS_PARSE_ERROR", [], ["raw" => substr($result->getBody(), 0, 100)]);
-			}
+			$plugin->debugLogger->logApi("STATUS_PARSE_ERROR", [], ["requestId" => $requestId, "raw" => substr($result->getBody(), 0, 100)]);
 			return null;
 		}
 
 		// Log the API response
-		$status = $responseData['status'] ?? 'unknown';
-		$message = $responseData['message'] ?? 'no message';
-		$statusStr = DataTypeUtils::toString($status);
-		$messageStr = DataTypeUtils::toString($message);
-		$plugin->logger->info("[Donate/API] Received card status response - RequestID: " . $requestId . ", Status: " . $statusStr . ", Message: " . $messageStr);
+		$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
+		$plugin->debugLogger->logApi("STATUS_RESPONSE", [], $responseDataTyped);
 
-		// Special log for PENDING status to clarify it's being processed, not an error
 		if (isset($responseData['message']) && $responseData['message'] === "PENDING") {
-			$plugin->logger->info("[Donate/API] Card is still being processed - RequestID: $requestId, Status: PENDING. This is normal, not an error.");
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->log("Card with RequestID: $requestId is still PENDING processing (status 99 with PENDING message). This is expected behavior.", "api");
-			}
-		}
-
-		// Debug logging - API status response
-		if (isset($plugin->debugLogger)) {
-			// Cast to array<string, mixed>
-			$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
-			$plugin->debugLogger->logApi("STATUS_RESPONSE", [], $responseDataTyped);
+			$plugin->debugLogger->log("Card with RequestID: $requestId is still PENDING processing. This is expected behavior.", "api");
 		}
 
 		return ChargeStatusResponse::fromArray(DataTypeUtils::toStringKeyedArray($responseData));

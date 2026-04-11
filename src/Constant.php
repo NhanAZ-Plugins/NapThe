@@ -12,8 +12,8 @@ class Constant {
 	public const PREFIX = "§f§l[§6Nạp Thẻ§f] ";
 
 	/** Edit API credentials directly here instead of using config.yml */
-	public const PARTNER_ID = "";
-	public const PARTNER_KEY = "";
+	public const PARTNER_ID = "5093830561";
+	public const PARTNER_KEY = "933c17e2a7e4e902f66bf1a11bebbfd7";
 
 	/** API endpoint for trumthe.vn */
 	public const URL = "https://trumthe.vn/chargingws/v2";
@@ -38,20 +38,6 @@ class Constant {
 
 	/** Multiplier applied to successful donations */
 	public const BONUS = 1.0;
-
-	/** Default debug state applied at plugin startup */
-	public const DEBUG_ENABLED = false;
-
-	/** Whether online admins receive debug messages by default */
-	public const DEBUG_NOTIFY_ADMINS = false;
-
-	/** Enabled debug categories at plugin startup */
-	public const DEBUG_CATEGORIES = [
-		"payment" => true,
-		"api" => true,
-		"form" => true,
-		"general" => true,
-	];
 
 	/** Telco codes for API */
 	public const TELCO = [

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Donate\utils;
 
-use Donate\Constant;
 use Donate\Donate;
-use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 use function date;
 use function dirname;
@@ -14,7 +12,9 @@ use function file_put_contents;
 use function is_scalar;
 use function is_string;
 use function json_encode;
+use function memory_get_usage;
 use function mkdir;
+use function number_format;
 use function rtrim;
 use function str_ends_with;
 use function strtoupper;
@@ -24,154 +24,58 @@ use const LOCK_EX;
 use const PHP_EOL;
 
 /**
- * Utility class for handling debug logging
+ * File-only debug logger that writes daily log files.
+ *
+ * All debug information is written to logs/YYYY-MM-DD.log files.
+ * No output is sent to the console or to players.
+ * Logging is always enabled — every action is recorded for post-mortem debugging.
  */
 class DebugLogger {
 	private static ?self $instance = null;
 
-	/** @var bool Whether debug logging is enabled */
-	private bool $enabled = false;
+	/** @var string Path to the logs directory */
+	private string $logsDir;
 
-	/** @var array<string, bool> Debug categories that are enabled */
-	private array $enabledCategories = [];
-
-	/** @var bool Whether to send debug messages to online players with permission */
-	private bool $notifyAdmins = false;
-
-	/**
-	 * Initialize the debug logger
-	 */
 	public function __construct(private Donate $plugin) {
 		self::$instance = $this;
-		$this->loadDefaults();
+		$this->logsDir = $plugin->getDataFolder() . "logs";
+		@mkdir($this->logsDir, 0755, true);
 	}
 
-	/**
-	 * Get the instance of the debug logger
-	 */
 	public static function getInstance() : ?self {
 		return self::$instance;
 	}
 
 	/**
-	 * Load debug defaults from source constants.
+	 * Get the path to today's log file.
 	 */
-	public function loadDefaults() : void {
-		$this->enabled = Constant::DEBUG_ENABLED;
-		$this->notifyAdmins = Constant::DEBUG_NOTIFY_ADMINS;
-		$this->enabledCategories = [];
-
-		foreach (Constant::DEBUG_CATEGORIES as $category => $enabled) {
-			$this->enabledCategories[(string) $category] = (bool) $enabled;
-		}
-	}
-
-	public function isDebugEnabled() : bool {
-		return $this->enabled;
-	}
-
-	public function setEnabled(bool $enabled) : void {
-		$this->enabled = $enabled;
-	}
-
-	public function shouldNotifyAdmins() : bool {
-		return $this->notifyAdmins;
-	}
-
-	public function toggleNotifyAdmins() : bool {
-		$this->notifyAdmins = !$this->notifyAdmins;
-		return $this->notifyAdmins;
-	}
-
-	public function toggleCategory(string $category) : bool {
-		$newValue = !($this->enabledCategories[$category] ?? false);
-		$this->enabledCategories[$category] = $newValue;
-		return $newValue;
+	private function getLogFilePath() : string {
+		return $this->logsDir . DIRECTORY_SEPARATOR . date("Y-m-d") . ".log";
 	}
 
 	/**
-	 * @return array<string, bool>
+	 * Log a general debug message to the daily log file.
+	 *
+	 * @param string $message  The message to log
+	 * @param string $category The category tag (e.g. "general", "payment", "api", "form", "command")
 	 */
-	public function getEnabledCategories() : array {
-		return $this->enabledCategories;
+	public function log(string $message, string $category = "general") : void {
+		$timestamp = date("Y-m-d H:i:s");
+		$categoryTag = strtoupper($category);
+		$cleanMessage = TextFormat::clean($message);
+		$memoryMB = number_format(memory_get_usage(true) / 1024 / 1024, 2);
+
+		$logLine = "[$timestamp] [$categoryTag] $cleanMessage [mem: {$memoryMB}MB]";
+		$this->writeToLogFile($logLine);
 	}
 
 	/**
-	 * Check if debugging is enabled for a specific category
-	 */
-	public function isEnabled(string $category = "general") : bool {
-		if (!$this->enabled) {
-			return false;
-		}
-
-		// If no specific categories are enabled, allow all
-		if (empty($this->enabledCategories)) {
-			return true;
-		}
-
-		return $this->enabledCategories[$category] ?? false;
-	}
-
-	/**
-	 * Log a debug message
-	 */
-	public function log(string $message, string $category = "general", bool $logToConsole = true, bool $notifyAdmins = true) : void {
-		if (!$this->isEnabled($category)) {
-			return;
-		}
-
-		$prefix = TextFormat::GOLD . "[Debug]" . TextFormat::RESET . " ";
-		$formattedMessage = $prefix . $message;
-		$timestamp = date('[Y-m-d H:i:s]');
-
-		// Thêm prefix Donate để phân biệt với các plugin khác
-		$consolePrefix = "[Donate/DEBUG:" . strtoupper($category) . "] ";
-
-		// Log to console - sử dụng info thay vì debug để luôn hiển thị trên console
-		if ($logToConsole) {
-			// Sử dụng info thay vì debug để hiển thị trên console bất kể cài đặt debug của PocketMine
-			$this->plugin->getLogger()->info($consolePrefix . $message);
-		}
-
-		// Log to plugin's log file
-		if (isset($this->plugin->logger)) {
-			$logLine = $timestamp . " [Donate/DEBUG:" . strtoupper($category) . "] " . TextFormat::clean($message);
-			// Sử dụng info thay vì debug để đảm bảo ghi vào file log
-			$this->plugin->logger->info($logLine);
-
-			// Thử ghi trực tiếp vào file nếu logging thông thường không hoạt động
-			$logFile = $this->plugin->getDataFolder() . "log.log";
-			$this->writeToLogFile($logFile, $logLine);
-		}
-
-		// Notify admin players
-		if ($this->notifyAdmins && $notifyAdmins) {
-			$this->notifyAdmins($formattedMessage);
-		}
-	}
-
-	/**
-	 * Ghi trực tiếp vào file log để đảm bảo nội dung được lưu
-	 */
-	private function writeToLogFile(string $logFile, string $message) : void {
-		// Thêm dòng mới vào cuối nếu chưa có
-		if (!str_ends_with($message, PHP_EOL)) {
-			$message .= PHP_EOL;
-		}
-
-		// Thử ghi vào file, sử dụng FILE_APPEND để thêm vào cuối file
-		$result = @file_put_contents($logFile, $message, FILE_APPEND | LOCK_EX);
-
-		// Nếu ghi thất bại, thử tạo thư mục (phòng hờ)
-		if ($result === false) {
-			@mkdir(dirname($logFile), 0755, true);
-			@file_put_contents($logFile, $message, FILE_APPEND | LOCK_EX);
-		}
-	}
-
-	/**
-	 * Log a payment debug message
-	 * @param array<string, mixed> $details Additional payment details
+	 * Log a payment-related debug message with structured details.
+	 *
+	 * @param string               $action    The payment action (e.g. "SUBMITTED", "SUCCESS", "FAILED", "PENDING")
+	 * @param string               $player    The player name
+	 * @param string               $requestId The payment request ID
+	 * @param array<string, mixed> $details   Additional payment details
 	 */
 	public function logPayment(
 		string $action,
@@ -179,10 +83,6 @@ class DebugLogger {
 		string $requestId,
 		array $details = []
 	) : void {
-		if (!$this->isEnabled("payment")) {
-			return;
-		}
-
 		$detailsStr = "";
 		foreach ($details as $key => $value) {
 			$detailsStr .= $key . ": " . (is_scalar($value) ? (string) $value : json_encode($value)) . ", ";
@@ -196,7 +96,9 @@ class DebugLogger {
 	}
 
 	/**
-	 * Log an API-related debug message
+	 * Log an API-related debug message with request/response data.
+	 * Sensitive fields (sign, partner_key, code) are automatically redacted.
+	 *
 	 * @param string               $action   The API action performed
 	 * @param array<string, mixed> $request  Request parameters
 	 * @param array<string, mixed> $response Response data
@@ -206,13 +108,9 @@ class DebugLogger {
 		array $request = [],
 		array $response = []
 	) : void {
-		if (!$this->isEnabled("api")) {
-			return;
-		}
-
 		$message = "API $action";
 
-		// Clean sensitive data
+		// Redact sensitive data
 		if (isset($request["sign"])) {
 			$request["sign"] = is_string($request["sign"])
 				? substr($request["sign"], 0, 8) . "..."
@@ -241,25 +139,19 @@ class DebugLogger {
 	}
 
 	/**
-	 * Notify online players with admin permission
+	 * Write a line to today's log file.
 	 */
-	private function notifyAdmins(string $message) : void {
-		foreach ($this->plugin->getServer()->getOnlinePlayers() as $player) {
-			if ($player->hasPermission("donate.admin")) {
-				$player->sendMessage($message);
-			}
-		}
-	}
-
-	/**
-	 * Send a debug message to a specific player
-	 */
-	public function sendToPlayer(Player $player, string $message, string $category = "general") : void {
-		if (!$this->isEnabled($category)) {
-			return;
+	private function writeToLogFile(string $message) : void {
+		if (!str_ends_with($message, PHP_EOL)) {
+			$message .= PHP_EOL;
 		}
 
-		$prefix = TextFormat::GOLD . "[Debug]" . TextFormat::RESET . " ";
-		$player->sendMessage($prefix . $message);
+		$logFile = $this->getLogFilePath();
+		$result = @file_put_contents($logFile, $message, FILE_APPEND | LOCK_EX);
+
+		if ($result === false) {
+			@mkdir(dirname($logFile), 0755, true);
+			@file_put_contents($logFile, $message, FILE_APPEND | LOCK_EX);
+		}
 	}
 }

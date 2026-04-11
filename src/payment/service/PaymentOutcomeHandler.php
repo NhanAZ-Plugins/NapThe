@@ -31,7 +31,6 @@ final class PaymentOutcomeHandler {
 		if ($response->isSuccessful()) {
 			$amount = $response->getAmount() ?? $payment->getAmount();
 
-			$this->plugin->logger->info("[Donate/Payment] Payment successful - Player: {$payment->getPlayerName()}, RequestID: {$requestId}, Amount: {$amount}");
 			$this->plugin->debugLogger->logPayment(
 				$successEvent,
 				$payment->getPlayerName(),
@@ -46,19 +45,12 @@ final class PaymentOutcomeHandler {
 
 			$this->plugin->successfulDonation($payment->getPlayerName(), $amount);
 
-			if ($logSummary) {
-				$this->plugin->getLogger()->info(
-					"Payment successful: [Player: {$payment->getPlayerName()}, RequestID: {$requestId}, Amount: {$amount}]"
-				);
-			}
-
 			$payment->setStatus(PaymentStatus::SUCCESSFUL);
 			$payment->setProcessedAmount($amount);
 
 			return $payment;
 		}
 
-		$this->plugin->logger->info("[Donate/Payment] Payment failed - Player: {$payment->getPlayerName()}, RequestID: {$requestId}, Reason: {$response->getMessage()}");
 		$this->plugin->debugLogger->logPayment(
 			$failureEvent,
 			$payment->getPlayerName(),
@@ -68,12 +60,6 @@ final class PaymentOutcomeHandler {
 				"message" => $response->getMessage()
 			]
 		);
-
-		if ($logSummary) {
-			$this->plugin->getLogger()->info(
-				"Payment failed: [Player: {$payment->getPlayerName()}, RequestID: {$requestId}, Reason: {$response->getMessage()}]"
-			);
-		}
 
 		$payment->setStatus(PaymentStatus::FAILED);
 		$payment->setFailReason($response->getMessage());

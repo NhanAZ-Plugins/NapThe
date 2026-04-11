@@ -35,14 +35,14 @@ final class DonateCardForm {
 		}
 
 		$this->cooldownTracker->touchDonateCooldown($playerName, $currentTime);
-		$this->plugin->logger->info("[Donate/Form] Sending donate form to player: " . $player->getName());
+		$this->plugin->debugLogger->log("Sending donate form to player: " . $player->getName(), "form");
 		$player->sendForm($this->create());
 	}
 
 	private function create() : CustomForm {
 		$form = new CustomForm(function(Player $player, mixed $data) : void {
 			if ($data === null) {
-				$this->plugin->logger->info("[Donate/Form] Player " . $player->getName() . " closed the donate form");
+				$this->plugin->debugLogger->log("Player " . $player->getName() . " closed the donate form", "form");
 				return;
 			}
 
@@ -70,7 +70,6 @@ final class DonateCardForm {
 
 			if ($serial === "" || $code === "") {
 				$player->sendMessage(Constant::PREFIX . "§cVui lòng không để trống số sê-ri hoặc mã thẻ!");
-				$this->plugin->logger->info("[Donate/Form] Player " . $player->getName() . " submitted form with empty serial or code");
 				$this->plugin->debugLogger->log("Player {$player->getName()} submitted form with empty serial or code", "payment");
 				return;
 			}
@@ -79,8 +78,7 @@ final class DonateCardForm {
 			$amount = Constant::AMOUNT[$amountIndex] ?? Constant::AMOUNT[0];
 			$requestId = Uuid::uuid4()->toString();
 
-			$this->plugin->logger->info("[Donate/Payment] Player " . $player->getName() . " submitted card payment - Telco: $telco, Amount: $amount");
-			$this->plugin->debugLogger->log("Player {$player->getName()} submitted donation form - Telco: $telco, Amount: $amount", "payment");
+			$this->plugin->debugLogger->log("Player {$player->getName()} submitted card payment - Telco: $telco, Amount: $amount, RequestID: $requestId", "payment");
 
 			$maskedSerial = substr($serial, 0, 4) . "****" . substr($serial, -4);
 			$maskedCode = substr($code, 0, 2) . "****" . substr($code, -2);
@@ -98,10 +96,6 @@ final class DonateCardForm {
 			if ($response->isSuccessful() || $response->isPending()) {
 				$player->sendMessage(MessageTranslator::formatInfoMessage("Thẻ của bạn đang được xử lý, vui lòng đợi..."));
 				$this->plugin->debugLogger->log("Card processing started for {$player->getName()} - RequestID: $requestId", "payment");
-
-				if ($player->hasPermission("donate.admin")) {
-					$this->plugin->debugLogger->sendToPlayer($player, "Tháº» Ä‘ang Ä‘Æ°á»£c xá»­ lÃ½ vá»›i ID: $requestId", "payment");
-				}
 				return;
 			}
 

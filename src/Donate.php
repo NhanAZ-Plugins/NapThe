@@ -6,7 +6,6 @@ namespace Donate;
 
 use Donate\manager\FormManager;
 use Donate\manager\PaymentManager;
-use Donate\traits\DonateDebugSupportTrait;
 use Donate\traits\DonateTopDonateTrait;
 use Donate\utils\DebugLogger;
 use pocketmine\command\Command;
@@ -14,41 +13,16 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
-use pocketmine\utils\MainLogger;
-use pocketmine\utils\Terminal;
-use pocketmine\utils\Timezone;
-use Symfony\Component\Filesystem\Path;
-use function array_rand;
-use function array_slice;
-use function arsort;
-use function ceil;
 use function count;
-use function date;
-use function fclose;
-use function fgets;
-use function file_exists;
-use function file_put_contents;
-use function filemtime;
-use function filesize;
-use function floor;
-use function fopen;
 use function implode;
 use function in_array;
-use function is_array;
 use function is_numeric;
-use function is_writable;
-use function log;
 use function max;
-use function min;
 use function mkdir;
-use function mt_rand;
-use function number_format;
-use function round;
 use function strlen;
 use function strtoupper;
 use function substr;
 use function time;
-use function trim;
 use function uniqid;
 use function version_compare;
 use const PHP_VERSION;
@@ -56,9 +30,7 @@ use const PHP_VERSION;
 class Donate extends PluginBase {
 	use SingletonTrait;
 	use DonateTopDonateTrait;
-	use DonateDebugSupportTrait;
 
-	public MainLogger $logger;
 	public DebugLogger $debugLogger;
 
 	private Config $donateData;
@@ -84,14 +56,7 @@ class Donate extends PluginBase {
 
 		$this->donateData = new Config($this->getDataFolder() . "donateData.yml", Config::YAML);
 
-		$this->logger = new MainLogger(
-			logFile: Path::join($this->getDataFolder(), "log.log"),
-			useFormattingCodes: Terminal::hasFormattingCodes(),
-			mainThreadName: "Server",
-			timezone: new \DateTimeZone(Timezone::get())
-		);
-
-		// Initialize debug logger
+		// Initialize debug logger (file-only, daily log files)
 		$this->debugLogger = new DebugLogger($this);
 
 		// Check for valid API credentials
@@ -125,17 +90,15 @@ class Donate extends PluginBase {
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool {
 		$commandName = $command->getName();
 
-		// Ghi log việc sử dụng lệnh
+		// Log command usage to file
 		$senderName = $sender instanceof Player ? $sender->getName() : "Console";
 		$argsString = !empty($args) ? " " . implode(" ", $args) : "";
-		$this->logger->info("[Donate/Command] $senderName executed /$commandName$argsString");
 		$this->debugLogger->log("Command executed: $senderName used /$commandName$argsString", "command");
 
 		switch ($commandName) {
 			case "donate":
 				if ($sender instanceof Player) {
 					// Người chơi thực thi lệnh, mở form donate
-					$this->logger->info("[Donate/Form] Opening donate form for player: " . $sender->getName());
 					$this->debugLogger->log("Opening donate form for player: " . $sender->getName(), "command");
 					$this->formManager->sendDonateForm($sender);
 					return true;
@@ -180,8 +143,7 @@ class Donate extends PluginBase {
 						// Tạo request ID
 						$requestId = uniqid("console_", true);
 
-						$this->logger->info("[Donate/Console] Processing card payment - Player: $playerName, Telco: $telco, RequestID: $requestId, Amount: $amount");
-						$this->debugLogger->log("Console initiated card payment for $playerName - Telco: $telco, Amount: $amount", "command");
+						$this->debugLogger->log("Console initiated card payment for $playerName - Telco: $telco, Amount: $amount, RequestID: $requestId", "command");
 
 						// Xử lý nạp thẻ
 						if ($targetPlayer !== null) {
@@ -259,7 +221,6 @@ class Donate extends PluginBase {
 					$page = max(1, (int) $args[0]);
 				}
 
-				$this->logger->info("[Donate/TopDonate] Player $senderName requested top donators page: $page");
 				$this->debugLogger->log("TopDonate command: $senderName requested page $page", "command");
 
 				// Nếu là player thì hiển thị form, nếu là console thì hiển thị text
@@ -270,107 +231,6 @@ class Donate extends PluginBase {
 					$this->debugLogger->log("Showing TopDonate text to console", "command");
 					$this->showTopDonators($sender, $page);
 				}
-				return true;
-
-			case "donatedebug":
-				if (!$sender->hasPermission("donate.command.debug")) {
-					$this->debugLogger->log("DonateDebug command rejected - no permission: $senderName", "command");
-					$sender->sendMessage(utils\MessageTranslator::formatErrorMessage("Bạn không có quyền sử dụng lệnh này!"));
-					return true;
-				}
-
-				// Handle debug command
-				$subcommand = $args[0] ?? "help";
-				$this->debugLogger->log("DonateDebug subcommand: $subcommand by $senderName", "command");
-
-				switch ($subcommand) {
-					case "pending":
-						$this->showPendingPayments($sender);
-						break;
-
-					case "status":
-						$requestId = $args[1] ?? "";
-						if (empty($requestId)) {
-							$sender->sendMessage(utils\MessageTranslator::formatErrorMessage("Vui lòng cung cấp ID yêu cầu thanh toán!"));
-							return true;
-						}
-						$this->checkPaymentStatus($sender, $requestId);
-						break;
-
-					case "toggle":
-						$category = $args[1] ?? "general";
-						$this->toggleDebugCategory($sender, $category);
-						break;
-
-					case "enabledebug":
-						$this->setDebugEnabled($sender, true);
-						break;
-
-					case "disabledebug":
-						$this->setDebugEnabled($sender, false);
-						break;
-
-					case "notifyadmins":
-						$this->toggleNotifyAdmins($sender);
-						break;
-
-					case "list":
-						$this->listDebugCategories($sender);
-						break;
-
-					case "loginfo":
-						$this->checkLogFile($sender);
-						break;
-
-					case "clearlog":
-						$this->clearLogFile($sender);
-						break;
-
-					case "testlog":
-						$this->testLogWriting($sender);
-						break;
-
-					case "sampledata":
-						$this->addSampleData($sender);
-						break;
-
-					case "samplepending":
-						$count = 5; // Số lượng giao dịch mẫu mặc định
-						if (isset($args[1]) && is_numeric($args[1])) {
-							$count = max(1, min(20, (int) $args[1])); // Hạn chế từ 1-20 giao dịch mẫu
-						}
-						$this->addSamplePendingPayments($sender, $count);
-						break;
-
-					default:
-						$sender->sendMessage(utils\MessageTranslator::formatInfoMessage("Các lệnh debug:"));
-
-						// Quản lý cài đặt debug
-						$sender->sendMessage("§e§l● Quản lý chung:");
-						$sender->sendMessage("§7 /donatedebug list §f- Liệt kê các danh mục debug và trạng thái");
-						$sender->sendMessage("§7 /donatedebug enabledebug §f- Bật debug");
-						$sender->sendMessage("§7 /donatedebug disabledebug §f- Tắt debug");
-						$sender->sendMessage("§7 /donatedebug notifyadmins §f- Bật/tắt thông báo debug cho admin");
-						$sender->sendMessage("§7 /donatedebug toggle <category> §f- Bật/tắt debug cho danh mục cụ thể");
-
-						// Thanh toán
-						$sender->sendMessage("§e§l● Thanh toán:");
-						$sender->sendMessage("§7 /donatedebug pending §f- Kiểm tra các giao dịch đang xử lý");
-						$sender->sendMessage("§7 /donatedebug status <requestId> §f- Kiểm tra trạng thái giao dịch");
-
-						// Quản lý log
-						$sender->sendMessage("§e§l● Quản lý Log:");
-						$sender->sendMessage("§7 /donatedebug loginfo §f- Kiểm tra thông tin file log");
-						$sender->sendMessage("§7 /donatedebug clearlog §f- Xóa nội dung file log");
-						$sender->sendMessage("§7 /donatedebug testlog §f- Kiểm tra khả năng ghi log");
-
-						// Dữ liệu mẫu
-						$sender->sendMessage("§e§l● Dữ liệu mẫu:");
-						$sender->sendMessage("§7 /donatedebug sampledata §f- Thêm dữ liệu mẫu để test");
-						$sender->sendMessage("§7 /donatedebug samplepending [số lượng] §f- Thêm giao dịch đang chờ xử lý mẫu");
-						break;
-				}
-
 				return true;
 
 			default:
@@ -402,6 +262,8 @@ class Donate extends PluginBase {
 			$player->sendMessage(utils\MessageTranslator::formatSuccessMessage("Chân thành cảm ơn bạn đã ủng hộ máy chủ {$formattedAmount}!"));
 			$player->sendMessage(utils\MessageTranslator::formatSuccessMessage("Bạn đã nhận được " . utils\MessageTranslator::formatAmount($bonusAmount) . " xu"));
 		}
+
+		$this->debugLogger->log("Successful donation - Player: $playerName, Amount: $amount, Bonus: $bonusAmount", "payment");
 	}
 
 	public function getDonateData() : Config {

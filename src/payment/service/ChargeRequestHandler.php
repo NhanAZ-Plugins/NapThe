@@ -31,7 +31,6 @@ final class ChargeRequestHandler {
 		string $requestId
 	) : ChargeResponse {
 		try {
-			$this->plugin->logger->info("[Donate/Payment] Processing card payment - Player: {$player->getName()}, RequestID: {$requestId}, Telco: {$telco}, Amount: {$amount}");
 			$this->plugin->debugLogger->logPayment(
 				"ATTEMPTED",
 				$player->getName(),
@@ -43,14 +42,6 @@ final class ChargeRequestHandler {
 					"code" => substr($code, 0, 2) . "****" . substr($code, -2)
 				]
 			);
-
-			if ($player->hasPermission("donate.admin")) {
-				$this->plugin->debugLogger->sendToPlayer(
-					$player,
-					"Äang xá»­ lÃ½ tháº» {$telco} má»‡nh giÃ¡ {$amount}Ä‘",
-					"payment"
-				);
-			}
 
 			$response = TrumTheAPI::chargeCard($telco, $code, $serial, $amount, $requestId);
 			if ($response === null) {
@@ -76,18 +67,16 @@ final class ChargeRequestHandler {
 				);
 				$this->store->add($requestId, $payment);
 
-				$this->plugin->logger->info("[Donate/Payment] Card payment pending - Player: {$player->getName()}, RequestID: {$requestId}, Status: {$response->getStatus()}");
 				$this->plugin->debugLogger->logPayment(
 					"PENDING",
 					$player->getName(),
 					$requestId,
 					[
 						"status" => $response->getStatus(),
-						"message" => $response->getMessage()
+						"message" => $response->getMessage(),
+						"telco" => $telco,
+						"amount" => $amount
 					]
-				);
-				$this->plugin->getLogger()->info(
-					"Payment initiated: [Player: {$player->getName()}, RequestID: {$requestId}, Telco: {$telco}, Amount: {$amount}]"
 				);
 
 				if ($response->isPending()) {
@@ -117,7 +106,6 @@ final class ChargeRequestHandler {
 
 			return $response;
 		} catch (InternetException $e) {
-			$this->plugin->getLogger()->error("Error processing payment: " . $e->getMessage());
 			$this->plugin->debugLogger->logPayment(
 				"EXCEPTION",
 				$player->getName(),

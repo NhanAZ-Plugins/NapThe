@@ -25,7 +25,6 @@ final class TopDonateForm {
 	}
 
 	public function send(Player $player, int $page = 1) : void {
-		$this->plugin->logger->info("[Donate/Form] Sending top donate form to player: " . $player->getName() . ", page: " . $page);
 		$this->plugin->debugLogger->log("Sending top donate form to player: " . $player->getName() . ", page: " . $page, "form");
 		$player->sendForm($this->create($page));
 	}

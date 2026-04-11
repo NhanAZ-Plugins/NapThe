@@ -25,11 +25,11 @@ final class ImmediateCheckScheduler {
 	) : void {
 		$payment = $this->store->get($requestId);
 		if ($payment === null) {
-			$this->plugin->logger->error("[Donate/Payment] Cannot schedule check - Payment not found: $requestId");
+			$this->plugin->debugLogger->log("Cannot schedule check - Payment not found: $requestId", "payment");
 			return;
 		}
 
-		$this->plugin->logger->info("[Donate/Payment] Scheduling immediate check for payment - RequestID: $requestId");
+		$this->plugin->debugLogger->log("Scheduling immediate check for payment - RequestID: $requestId", "payment");
 		$this->plugin->getScheduler()->scheduleDelayedTask(
 			new ClosureTask(function() use ($requestId, $retryDelay, $maxRetries) : void {
 				$payment = $this->store->get($requestId);
@@ -84,9 +84,6 @@ final class ImmediateCheckScheduler {
 						$payment->getPlayerName(),
 						$requestId,
 						["error" => $e->getMessage()]
-					);
-					$this->plugin->getLogger()->error(
-						"Error checking payment status immediately: " . $e->getMessage()
 					);
 				}
 			}),

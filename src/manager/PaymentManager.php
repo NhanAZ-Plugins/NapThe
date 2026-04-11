@@ -86,7 +86,7 @@ class PaymentManager {
 
 	public function addSamplePayment(string $requestId, CardPayment $payment) : void {
 		$this->pendingPaymentStore->add($requestId, $payment);
-		$this->plugin->logger->info("[Donate/Sample] Added sample payment - RequestID: {$requestId}, Player: {$payment->getPlayerName()}, Amount: {$payment->getAmount()}");
+		$this->plugin->debugLogger->log("Added sample payment - RequestID: {$requestId}, Player: {$payment->getPlayerName()}, Amount: {$payment->getAmount()}", "payment");
 	}
 
 	public function scheduleImmediateCheck(

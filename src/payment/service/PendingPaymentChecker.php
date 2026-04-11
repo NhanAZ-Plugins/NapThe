@@ -29,7 +29,6 @@ final class PendingPaymentChecker {
 		$pendingCount = count($pendingPayments);
 
 		if ($pendingCount > 0) {
-			$this->plugin->logger->info("[Donate/Payment] Checking " . $pendingCount . " pending payments");
 			$this->plugin->debugLogger->log(
 				"Checking " . $pendingCount . " pending payments",
 				"payment"
@@ -94,9 +93,6 @@ final class PendingPaymentChecker {
 					$payment->getPlayerName(),
 					$requestId,
 					["error" => $e->getMessage()]
-				);
-				$this->plugin->getLogger()->error(
-					"Error checking payment status: " . $e->getMessage()
 				);
 			}
 		}
