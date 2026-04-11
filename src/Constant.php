@@ -12,8 +12,8 @@ class Constant {
 	public const PREFIX = "§8[§6Nạp Thẻ§8] ";
 
 	/** Chỉnh sửa tài khoản API trực tiếp tại đây thay vì dùng config.yml */
-	public const PARTNER_ID = "5093830561";
-	public const PARTNER_KEY = "933c17e2a7e4e902f66bf1a11bebbfd7";
+	public const PARTNER_ID = "";
+	public const PARTNER_KEY = "";
 
 	/** API endpoint for trumthe.vn */
 	public const URL = "https://trumthe.vn/chargingws/v2";

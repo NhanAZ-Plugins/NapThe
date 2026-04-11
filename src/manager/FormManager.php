@@ -14,7 +14,7 @@ use pocketmine\player\Player;
 use function max;
 
 class FormManager {
-	private NapTheCardForm $donateCardForm;
+	private NapTheCardForm $napTheCardForm;
 
 	private TopNapTheForm $topNapTheForm;
 
