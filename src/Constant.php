@@ -22,6 +22,29 @@ class Constant {
 		return $value === false ? "" : trim($value);
 	}
 
+	public static function apiUrl() : string {
+		$value = getenv("TRUMTHE_API_URL");
+		if ($value === false || trim($value) === "") {
+			return self::URL;
+		}
+
+		$url = trim($value);
+		$parts = parse_url($url);
+		if (
+			filter_var($url, FILTER_VALIDATE_URL) === false ||
+			!is_array($parts) ||
+			($parts["scheme"] ?? null) !== "https" ||
+			!isset($parts["host"]) ||
+			isset($parts["user"]) ||
+			isset($parts["pass"]) ||
+			isset($parts["fragment"])
+		) {
+			throw new \InvalidArgumentException("TRUMTHE_API_URL must be an HTTPS URL without credentials or fragment");
+		}
+
+		return $url;
+	}
+
 	/** API endpoint for trumthe.vn */
 	public const URL = "https://trumthe.vn/chargingws/v2";
 

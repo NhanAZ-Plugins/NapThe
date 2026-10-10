@@ -240,7 +240,7 @@ final class TrumTheAPI {
 	 */
 	private static function postRequest(array $data) : ?InternetRequestResult {
 		try {
-			$apiUrl = Constant::URL;
+			$apiUrl = Constant::apiUrl();
 			$timeout = max(1, Constant::API_TIMEOUT);
 
 			// Mã hoá dữ liệu JSON cho POST request

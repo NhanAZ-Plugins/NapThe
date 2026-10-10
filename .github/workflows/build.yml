@@ -53,6 +53,31 @@ jobs:
       - name: Lint plugin PHP source
         run: find src -name '*.php' -print0 | xargs -0 -n1 php -l
 
+      - name: Check provider URL override safety
+        shell: bash
+        run: |
+          php <<'PHP'
+          <?php
+          require 'src/Constant.php';
+          putenv('TRUMTHE_API_URL');
+          if (\NapThe\Constant::apiUrl() !== \NapThe\Constant::URL) {
+              throw new RuntimeException('Default endpoint changed');
+          }
+          putenv('TRUMTHE_API_URL=https://example.org/chargingws/v2');
+          if (\NapThe\Constant::apiUrl() !== 'https://example.org/chargingws/v2') {
+              throw new RuntimeException('HTTPS override was rejected');
+          }
+          foreach (['http://example.org/api', 'https://user@example.org/api', 'https://example.org/api#fragment'] as $url) {
+              putenv('TRUMTHE_API_URL=' . $url);
+              try {
+                  \NapThe\Constant::apiUrl();
+              } catch (InvalidArgumentException) {
+                  continue;
+              }
+              throw new RuntimeException('Unsafe URL accepted');
+          }
+          PHP
+
       - name: Analyze and build with pinned DevTools
         id: build
         uses: NhanAZ/DevTools@6606444fc32787a3e50275fdb668c2310e899740 # v1.0.3

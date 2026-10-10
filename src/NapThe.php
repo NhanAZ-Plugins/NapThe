@@ -64,6 +64,12 @@ class NapThe extends PluginBase {
 			$this->getLogger()->error("Set TRUMTHE_PARTNER_ID and TRUMTHE_PARTNER_KEY in the server process environment.");
 			return;
 		}
+		try {
+			Constant::apiUrl();
+		} catch (\InvalidArgumentException $e) {
+			$this->getLogger()->error($e->getMessage());
+			return;
+		}
 
 		// Khởi tạo các trình quản lý
 		$this->formManager = new FormManager($this);

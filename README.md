@@ -9,6 +9,8 @@ NapThe is an experimental Vietnamese prepaid card donation plugin for PocketMine
 
 Set `TRUMTHE_PARTNER_ID` and `TRUMTHE_PARTNER_KEY` in the server process environment. Without both values, the plugin does not start payment tasks and its commands report that payment is unavailable. Do not put credentials in source, a PHAR, GitHub Actions logs or a public configuration file.
 
+`src/Constant.php` retains the historical provider URL as its default. Set `TRUMTHE_API_URL` to an HTTPS endpoint from the [provider's current instructions](https://trumthe.vn/) when that endpoint has been verified for your account. The plugin rejects an override that uses HTTP or embeds URL credentials. The provider's current POST response contract has not been verified by this project, so an HTTPS response to a browser request does not establish payment compatibility.
+
 The plugin sends JSON over HTTPS with POST to the endpoint defined in `src/Constant.php`. It does not implement an incoming HTTP callback endpoint. Configure the provider according to its current official instructions and do not point a reverse proxy at the Minecraft server expecting a callback handler here. Form classes are bundled under `src/utils/FormAPI/`, with their LGPL-3.0 notice in `licenses/`.
 
 ## Commands and installation
