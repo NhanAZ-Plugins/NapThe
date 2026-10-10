@@ -18,6 +18,14 @@ jobs:
       - name: Check out NapThe
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Check out minimum Axolotl-PM API source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: axolotl-pm/PocketMine-MP
+          ref: b16cc69974d4e805d21e6328ab77c0e17cd7116d # 5.0.0
+          path: .devtools-dependencies/axolotl-pm-minimum
+          persist-credentials: false
+
       - name: Check out pinned Axolotl-PM source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -52,7 +60,9 @@ jobs:
           project: .
           output: build
           phpstan: max
-          phpstan-server: .devtools-dependencies/axolotl-pm
+          phpstan-server: |
+            .devtools-dependencies/axolotl-pm-minimum
+            .devtools-dependencies/axolotl-pm
 
       - name: Verify PHAR contents and checksum
         shell: bash
