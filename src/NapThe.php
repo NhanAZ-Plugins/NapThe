@@ -36,6 +36,7 @@ class NapThe extends PluginBase {
 	private Config $napTheData;
 	private FormManager $formManager;
 	private PaymentManager $paymentManager;
+	private bool $ready = false;
 
 	protected function onLoad() : void {
 		self::setInstance($this);
@@ -48,7 +49,6 @@ class NapThe extends PluginBase {
 		// Kiểm tra phiên bản PHP
 		if (version_compare(PHP_VERSION, '8.2.0', '<')) {
 			$this->getLogger()->error("Plugin require PHP 8.2.0 or higher. Current version: " . PHP_VERSION);
-			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
 
@@ -62,7 +62,6 @@ class NapThe extends PluginBase {
 		// Kiểm tra tài khoản API có hợp lệ không
 		if (Constant::partnerId() === "" || Constant::partnerKey() === "") {
 			$this->getLogger()->error("Set TRUMTHE_PARTNER_ID and TRUMTHE_PARTNER_KEY in the server process environment.");
-			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
 
@@ -72,11 +71,13 @@ class NapThe extends PluginBase {
 
 		// Bắt đầu tiến trình kiểm tra thanh toán
 		$this->paymentManager->startPaymentCheckTask();
+		$this->ready = true;
 
 		$this->debugLogger->log("Plugin enabled successfully", "general");
 	}
 
 	protected function onDisable() : void {
+		$this->ready = false;
 		// Lưu các dữ liệu còn đang chờ
 		if (isset($this->napTheData)) {
 			$this->napTheData->save();
@@ -88,6 +89,11 @@ class NapThe extends PluginBase {
 	}
 
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool {
+		if (!$this->ready) {
+			$sender->sendMessage(Constant::PREFIX . "NapThe chưa sẵn sàng. Kiểm tra PHP và biến môi trường TrumThe trên server.");
+			return true;
+		}
+
 		$commandName = $command->getName();
 
 		// Ghi nhật ký sử dụng lệnh
