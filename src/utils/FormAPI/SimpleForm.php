@@ -7,6 +7,7 @@ namespace NapThe\utils\FormAPI;
 use pocketmine\form\FormValidationException;
 use function count;
 use function gettype;
+use function is_array;
 use function is_int;
 
 /**
@@ -32,7 +33,11 @@ class SimpleForm extends Form {
 			if (!is_int($data)) {
 				throw new FormValidationException("Expected an integer response, got " . gettype($data));
 			}
-			$count = count($this->data["buttons"]);
+			$buttons = $this->data["buttons"] ?? null;
+			if (!is_array($buttons)) {
+				throw new \LogicException("Invalid form buttons");
+			}
+			$count = count($buttons);
 			if ($data >= $count || $data < 0) {
 				throw new FormValidationException("Button $data does not exist");
 			}
@@ -46,11 +51,11 @@ class SimpleForm extends Form {
 	}
 
 	public function getTitle() : string {
-		return $this->data["title"];
+		return $this->getStringField("title");
 	}
 
 	public function getContent() : string {
-		return $this->data["content"];
+		return $this->getStringField("content");
 	}
 
 	public function setContent(string $content) : self {
@@ -61,10 +66,17 @@ class SimpleForm extends Form {
 	public function addButton(string $text, int $imageType = -1, string $imagePath = "", int|string|null $label = null) : self {
 		$content = ["text" => $text];
 		if ($imageType !== -1) {
-			$content["image"]["type"] = $imageType === self::IMAGE_TYPE_PATH ? "path" : "url";
-			$content["image"]["data"] = $imagePath;
+			$content["image"] = [
+				"type" => $imageType === self::IMAGE_TYPE_PATH ? "path" : "url",
+				"data" => $imagePath
+			];
 		}
-		$this->data["buttons"][] = $content;
+		$buttons = $this->data["buttons"] ?? null;
+		if (!is_array($buttons)) {
+			throw new \LogicException("Invalid form buttons");
+		}
+		$buttons[] = $content;
+		$this->data["buttons"] = $buttons;
 		$this->labelMap[] = $label ?? count($this->labelMap);
 		return $this;
 	}

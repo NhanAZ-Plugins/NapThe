@@ -15,7 +15,6 @@ use function json_decode;
 use function json_encode;
 use function max;
 use function md5;
-use function substr;
 use function time;
 
 /**
@@ -106,12 +105,11 @@ final class TrumTheAPI {
 			);
 		}
 
-		$partnerId = Constant::PARTNER_ID;
-		$partnerKey = Constant::PARTNER_KEY;
+		$partnerId = Constant::partnerId();
+		$partnerKey = Constant::partnerKey();
 
-		/** @phpstan-ignore-next-line */
 		if ($partnerId === "" || $partnerKey === "") {
-			throw new \InvalidArgumentException("Partner ID and Partner Key must be configured in src/Constant.php");
+			throw new \InvalidArgumentException("TRUMTHE_PARTNER_ID and TRUMTHE_PARTNER_KEY must be set in the server process environment");
 		}
 
 		$sign = md5($partnerKey . $code . $serial);
@@ -127,36 +125,29 @@ final class TrumTheAPI {
 			"command" => "charging"
 		];
 
-		// Ghi log yêu cầu API (Dữ liệu nguyên gốc)
-		$plugin->debugLogger->logApi("CHARGE_REQUEST", $data);
+		$plugin->debugLogger->logApi("CHARGE_REQUEST");
 
 		$result = self::postRequest($data);
 		if ($result === null) {
-			$plugin->debugLogger->logApi("CHARGE_FAILED", [], ["error" => "Connection failed", "requestId" => $requestId]);
+			$plugin->debugLogger->logApi("CHARGE_FAILED");
 			return null;
 		}
 
 		$responseData = json_decode($result->getBody(), true);
 		if (!is_array($responseData)) {
-			$plugin->debugLogger->logApi("CHARGE_PARSE_ERROR", [], ["requestId" => $requestId, "raw" => substr($result->getBody(), 0, 100)]);
+			$plugin->debugLogger->logApi("CHARGE_PARSE_ERROR");
 			return null;
 		}
 
-		// Ghi log phản hồi từ API
 		$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
-		$plugin->debugLogger->logApi("CHARGE_RESPONSE", [], $responseDataTyped);
+		$plugin->debugLogger->logApi("CHARGE_RESPONSE");
 
 		// Ghi log đặc biệt cho trạng thái ĐANG XỬ LÝ (PENDING)
 		if (isset($responseData['message']) && $responseData['message'] === "PENDING") {
 			$plugin->debugLogger->log("Card with RequestID: $requestId is PENDING processing (status 99 with PENDING message). This is expected behavior.", "api");
 		}
 
-		if (isset($responseData['message'])) {
-			$messageContent = DataTypeUtils::toString($responseData['message']);
-			$plugin->debugLogger->log("API response message (raw): '" . $messageContent . "'", "api");
-		}
-
-		return ChargeResponse::fromArray(DataTypeUtils::toStringKeyedArray($responseData));
+		return ChargeResponse::fromArray($responseDataTyped);
 	}
 
 	/**
@@ -180,8 +171,11 @@ final class TrumTheAPI {
 			);
 		}
 
-		$partnerId = Constant::PARTNER_ID;
-		$partnerKey = Constant::PARTNER_KEY;
+		$partnerId = Constant::partnerId();
+		$partnerKey = Constant::partnerKey();
+		if ($partnerId === "" || $partnerKey === "") {
+			throw new \InvalidArgumentException("TRUMTHE_PARTNER_ID and TRUMTHE_PARTNER_KEY must be set in the server process environment");
+		}
 
 		// Tạo dữ liệu cơ bản
 		$data = [
@@ -211,30 +205,28 @@ final class TrumTheAPI {
 			$data['sign'] = md5($partnerKey . $requestId);
 		}
 
-		// Ghi log yêu cầu kiểm tra trạng thái API (Dữ liệu nguyên gốc)
-		$plugin->debugLogger->logApi("STATUS_REQUEST", $data);
+		$plugin->debugLogger->logApi("STATUS_REQUEST");
 
 		$result = self::postRequest($data);
 		if ($result === null) {
-			$plugin->debugLogger->logApi("STATUS_FAILED", [], ["error" => "Connection failed", "requestId" => $requestId]);
+			$plugin->debugLogger->logApi("STATUS_FAILED");
 			return null;
 		}
 
 		$responseData = json_decode($result->getBody(), true);
 		if (!is_array($responseData)) {
-			$plugin->debugLogger->logApi("STATUS_PARSE_ERROR", [], ["requestId" => $requestId, "raw" => substr($result->getBody(), 0, 100)]);
+			$plugin->debugLogger->logApi("STATUS_PARSE_ERROR");
 			return null;
 		}
 
-		// Ghi log phản hồi từ API
 		$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
-		$plugin->debugLogger->logApi("STATUS_RESPONSE", [], $responseDataTyped);
+		$plugin->debugLogger->logApi("STATUS_RESPONSE");
 
 		if (isset($responseData['message']) && $responseData['message'] === "PENDING") {
 			$plugin->debugLogger->log("Card with RequestID: $requestId is still PENDING processing. This is expected behavior.", "api");
 		}
 
-		return ChargeStatusResponse::fromArray(DataTypeUtils::toStringKeyedArray($responseData));
+		return ChargeStatusResponse::fromArray($responseDataTyped);
 	}
 
 	/**

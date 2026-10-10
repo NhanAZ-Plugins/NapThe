@@ -11,9 +11,16 @@ class Constant {
 	/** Tiền tố plugin cho các thông báo */
 	public const PREFIX = "[Nạp Thẻ] ";
 
-	/** Chỉnh sửa tài khoản API trực tiếp tại đây thay vì dùng config.yml */
-	public const PARTNER_ID = "5093830561";
-	public const PARTNER_KEY = "933c17e2a7e4e902f66bf1a11bebbfd7";
+	/** Read API credentials from the server process environment. */
+	public static function partnerId() : string {
+		$value = getenv("TRUMTHE_PARTNER_ID");
+		return $value === false ? "" : trim($value);
+	}
+
+	public static function partnerKey() : string {
+		$value = getenv("TRUMTHE_PARTNER_KEY");
+		return $value === false ? "" : trim($value);
+	}
 
 	/** API endpoint for trumthe.vn */
 	public const URL = "https://trumthe.vn/chargingws/v2";

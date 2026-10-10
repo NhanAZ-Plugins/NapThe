@@ -37,11 +37,11 @@ class ModalForm extends Form {
 	}
 
 	public function getTitle() : string {
-		return $this->data["title"];
+		return $this->getStringField("title");
 	}
 
 	public function getContent() : string {
-		return $this->data["content"];
+		return $this->getStringField("content");
 	}
 
 	public function setContent(string $content) : self {
@@ -55,7 +55,7 @@ class ModalForm extends Form {
 	}
 
 	public function getButton1() : string {
-		return $this->data["button1"];
+		return $this->getStringField("button1");
 	}
 
 	public function setButton2(string $text) : self {
@@ -64,6 +64,6 @@ class ModalForm extends Form {
 	}
 
 	public function getButton2() : string {
-		return $this->data["button2"];
+		return $this->getStringField("button2");
 	}
 }

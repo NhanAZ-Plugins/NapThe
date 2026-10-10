@@ -1,46 +1,24 @@
-### Hướng dẫn kết nối API
+# NapThe
 
-#### Bước 1. Đăng ký và thiết lập API TrumThe.vn
+NapThe is an experimental Vietnamese prepaid card donation plugin for PocketMine-MP. It submits card details to TrumThe and tracks confirmed donation totals. The plugin manifest declares minimum API `5.0.0`. Compatibility with a current Axolotl-PM release and the live payment service has not been verified.
 
-1. Truy cập vào [trumthe.vn](https://trumthe.vn/) và đăng nhập hoặc đăng ký tài khoản
-2. Vào phần "KẾT NỐI API" trong menu chính
-3. Điền các thông tin cấu hình:
-   - **Loại API**: Chọn "Đổi thẻ cào"
-   - **Chọn ví giao dịch**: (Ví của bạn)
-   - **Kiểu**: GET hoặc POST (Plugin hỗ trợ cả hai, khuyên dùng POST)
-   - **Đường dẫn nhận dữ liệu (Callback URL)**: Nhập URL máy chủ của bạn, ví dụ: `https://test.pmmp.io/trumthe/callback`
-   - **Địa chỉ IP (không bắt buộc)**: Địa chỉ IP của máy chủ (nếu có)
+> [!WARNING]
+> An API credential was previously committed to this repository. Removing it from current source does not revoke the exposed value in Git history. Revoke that credential with the provider and issue a new one before any real transaction. Do not reuse the exposed credential.
 
-> **Lưu ý về Callback URL**: Mặc dù plugin này không yêu cầu Callback URL để hoạt động, việc điền thông tin này giúp TrumThe xác định nguồn gốc giao dịch hợp lệ. Điều này sẽ giúp bảo vệ tài khoản của bạn trong trường hợp có nghi vấn về thẻ không rõ nguồn gốc, thẻ lừa đảo hoặc thẻ bị đánh cắp. Đối với máy chủ Minecraft, bạn có thể giải thích với admin TrumThe rằng đây là IP của server game, không phải website thông thường nên không thể truy cập trực tiếp qua trình duyệt.
+## Configuration and dependencies
 
-4. Sau khi đăng ký, bạn sẽ nhận được:
-   - **Partner ID**: Được cấp bởi TrumThe
-   - **Partner Key**: Chìa khóa bảo mật API
+Set `TRUMTHE_PARTNER_ID` and `TRUMTHE_PARTNER_KEY` in the server process environment. The plugin disables itself when either value is missing. Do not put credentials in source, a PHAR, GitHub Actions logs or a public configuration file.
 
-5. **Quan trọng**: Liên hệ với admin TrumThe để kích hoạt API từ trạng thái "Đang tắt" sang "Hoạt động"
+The plugin sends JSON over HTTPS with POST to the endpoint defined in `src/Constant.php`. It does not implement an incoming HTTP callback endpoint. Configure the provider according to its current official instructions and do not point a reverse proxy at the Minecraft server expecting a callback handler here. Form classes are bundled under `src/utils/FormAPI/`, with their LGPL-3.0 notice in `licenses/`.
 
-#### Bước 2. Cấu hình plugin
+## Commands and installation
 
-1. Mở file `src/Constant.php`
-2. Điền thông tin đã đăng ký trực tiếp trong mã nguồn:
-```php
-public const PARTNER_ID = "PARTNER_ID_CUA_BAN";
-public const PARTNER_KEY = "PARTNER_KEY_CUA_BAN";
-```
-3. Plugin đã nhúng sẵn `FormAPI` trong `src/utils/FormAPI`, nên không cần cài thêm `pmforms` hoặc plugin form bên ngoài.
+The `napthe` command opens the card submission form. The `topnapthe` command shows donation totals. Their permissions are `napthe.command.napthe` and `napthe.command.topnapthe`, respectively. Both default to enabled in `plugin.yml`.
 
-#### Bước 3. Thiết lập Callback URL (Tham khảo - Có thể bỏ qua)
+Install only in a disposable PocketMine-MP test server after creating a PHAR from this source. [DevTools](https://github.com/NhanAZ/DevTools) is the project build tool, but a PHAR and server runtime for this revision have not yet been verified. Do not use this source with real cards until the payment safety work below is complete.
 
-Nếu bạn muốn thiết lập một callback URL thực sự hoạt động (tùy chọn), bạn cần:
-- Có domain trỏ đến IP máy chủ
-- Thiết lập reverse proxy (nginx, apache) tới cổng máy chủ
-- Đảm bảo địa chỉ callback có thể truy cập từ internet
+## Current verification limits
 
-Mẫu cấu hình Nginx:
-```nginx
-location /trumthe/callback {
-    proxy_pass http://localhost:PORT/trumthe/callback;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-}
-```
+This repository has no hosted CI, verified DevTools PHAR, stable release or tested live payment flow. Pending payments are held in memory, so a restart can lose their check state. Successful donation totals are stored in `naptheData.yml`, but the code does not grant economy coins or items. Before production use, implement durable pending payment and idempotency records, test restart and duplicate responses, verify provider behavior without real cards, and check PHPStan at maximum level plus a disposable server runtime.
+
+The root source has no declared license. Preserve the bundled FormAPI notice and resolve the license for NapThe before distributing a modified build. For project support, use [NhanAZ Discord](https://discord.gg/j2X83ujT6c).

@@ -91,7 +91,7 @@ final class ChargeRequestHandler {
 			}
 
 			$this->plugin->debugLogger->log(
-				"Payment rejected for {$player->getName()}: Raw message: {$response->getMessage()}",
+				"Payment rejected for {$player->getName()} with status {$response->getStatus()}",
 				"payment"
 			);
 			$this->plugin->debugLogger->logPayment(

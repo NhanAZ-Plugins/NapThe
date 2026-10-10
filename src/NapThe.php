@@ -60,9 +60,8 @@ class NapThe extends PluginBase {
 		$this->debugLogger = new DebugLogger($this);
 
 		// Kiểm tra tài khoản API có hợp lệ không
-		/** @phpstan-ignore-next-line */
-		if (Constant::PARTNER_ID === "" || Constant::PARTNER_KEY === "") {
-			$this->getLogger()->error("Vui lòng cấu hình PARTNER_ID và PARTNER_KEY trong src/Constant.php!");
+		if (Constant::partnerId() === "" || Constant::partnerKey() === "") {
+			$this->getLogger()->error("Set TRUMTHE_PARTNER_ID and TRUMTHE_PARTNER_KEY in the server process environment.");
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
@@ -93,8 +92,7 @@ class NapThe extends PluginBase {
 
 		// Ghi nhật ký sử dụng lệnh
 		$senderName = $sender instanceof Player ? $sender->getName() : "Console";
-		$argsString = !empty($args) ? " " . implode(" ", $args) : "";
-		$this->debugLogger->log("Command executed: $senderName used /$commandName$argsString", "command");
+		$this->debugLogger->log("Command executed: $senderName used /$commandName", "command");
 
 		switch ($commandName) {
 			case "napthe":
@@ -142,20 +140,13 @@ class NapThe extends PluginBase {
 		$this->napTheData->setNested($playerName, $safeAmount + $amount);
 		$this->napTheData->save();
 
-		// Tính toán số tiền khuyến mãi
-		$bonusAmount = (int) ($amount * Constant::BONUS);
-
-		// Thêm phần thưởng phụ (ví dụ xu, vật phẩm) tại đây
-		// Example: EconomyAPI::getInstance()->addMoney($playerName, $bonusAmount);
-
 		// Thông báo nếu người chơi đang online
 		$player = $this->getServer()->getPlayerExact($playerName);
 		if ($player !== null) {
 			$player->sendMessage(utils\MessageTranslator::formatSuccessMessage("Chân thành cảm ơn bạn đã ủng hộ máy chủ {$formattedAmount}!"));
-			$player->sendMessage(utils\MessageTranslator::formatSuccessMessage("Bạn đã nhận được " . utils\MessageTranslator::formatAmount($bonusAmount) . " xu"));
 		}
 
-		$this->debugLogger->log("Successful donation - Player: $playerName, Amount: $amount, Bonus: $bonusAmount", "payment");
+		$this->debugLogger->log("Successful donation - Player: $playerName, Amount: $amount", "payment");
 	}
 
 	public function getNapTheData() : Config {

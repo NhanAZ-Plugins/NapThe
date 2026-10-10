@@ -60,7 +60,7 @@ class CustomForm extends Form {
 	}
 
 	public function getTitle() : string {
-		return $this->data["title"];
+		return $this->getStringField("title");
 	}
 
 	public function addLabel(string $text, string|int|null $label = null) : self {
@@ -138,7 +138,12 @@ class CustomForm extends Form {
 	 * @param array<string, mixed> $content
 	 */
 	private function addContent(array $content) : self {
-		$this->data["content"][] = $content;
+		$items = $this->data["content"] ?? null;
+		if (!is_array($items)) {
+			throw new \LogicException("Invalid custom form content");
+		}
+		$items[] = $content;
+		$this->data["content"] = $items;
 		return $this;
 	}
 }

@@ -7,7 +7,6 @@ namespace NapThe\api;
 use NapThe\StatusCode;
 use NapThe\utils\DataTypeUtils;
 use JsonSerializable;
-use function class_exists;
 use function strpos;
 use function strtoupper;
 
@@ -192,24 +191,13 @@ class ChargeStatusResponse implements JsonSerializable {
 	 * Returns user-friendly message for the response
 	 */
 	public function getFriendlyMessage() : string {
-		// Debug log để xem thông báo gốc
-		if (class_exists("\NapThe\NapThe") && $this->status !== StatusCode::SUCCESS && $this->status !== StatusCode::PENDING) {
-			$plugin = \NapThe\NapThe::getInstance();
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->log(
-					"ChargeStatusResponse.getFriendlyMessage raw message: '" . $this->message . "', status: " . $this->status,
-					"api"
-				);
-			}
-		}
-
 		if (!$this->isValidRequest()) {
 			return \NapThe\utils\MessageTranslator::formatErrorMessage("connection.failed");
 		}
 
 		// Xử lý đặc biệt cho card_existed
 		if (strpos($this->message, "card_existed") !== false) {
-			return \NapThe\utils\MessageTranslator::formatErrorMessage("Thẻ này đã được sử dụng trước đó");
+			return \NapThe\utils\MessageTranslator::formatErrorMessage("charging.card_existed");
 		}
 
 		$message = match ($this->status) {

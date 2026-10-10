@@ -9,9 +9,6 @@ use pocketmine\utils\TextFormat;
 use function date;
 use function dirname;
 use function file_put_contents;
-use function is_scalar;
-use function is_string;
-use function json_encode;
 use function memory_get_usage;
 use function mkdir;
 use function number_format;
@@ -75,7 +72,7 @@ class DebugLogger {
 	 * @param string               $action    The payment action (e.g. "SUBMITTED", "SUCCESS", "FAILED", "PENDING")
 	 * @param string               $player    The player name
 	 * @param string               $requestId The payment request ID
-	 * @param array<string, mixed> $details   Additional payment details
+	 * @param array<string, mixed> $details   Details; only safe numeric/status fields are logged
 	 */
 	public function logPayment(
 		string $action,
@@ -85,7 +82,10 @@ class DebugLogger {
 	) : void {
 		$detailsStr = "";
 		foreach ($details as $key => $value) {
-			$detailsStr .= $key . ": " . (is_scalar($value) ? (string) $value : json_encode($value)) . ", ";
+			if (!in_array($key, ["status", "amount", "declared", "received"], true) || (!is_int($value) && !is_float($value))) {
+				continue;
+			}
+			$detailsStr .= $key . ": " . (string) $value . ", ";
 		}
 		$detailsStr = rtrim($detailsStr, ", ");
 
@@ -95,27 +95,9 @@ class DebugLogger {
 		$this->log($message, "payment");
 	}
 
-	/**
-	 * Log an API-related debug message with request/response data.
-	 */
-	public function logApi(
-		string $action,
-		array $request = [],
-		array $response = []
-	) : void {
-		$message = "API $action";
-
-		// Dữ liệu nguyên gốc (không ẩn)
-
-		if (!empty($request)) {
-			$message .= " - Request: " . json_encode($request);
-		}
-
-		if (!empty($response)) {
-			$message .= " - Response: " . json_encode($response);
-		}
-
-		$this->log($message, "api");
+	/** Record the API stage without card numbers, signatures or response bodies. */
+	public function logApi(string $action) : void {
+		$this->log("API $action", "api");
 	}
 
 	/**

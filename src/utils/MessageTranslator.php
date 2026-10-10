@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace NapThe\utils;
 
 use NapThe\Constant;
-use function class_exists;
 use function number_format;
 use function preg_match;
-use function preg_replace;
-use function str_replace;
 use function str_starts_with;
 use function stripos;
 use function strpos;
-use function ucfirst;
 
 /**
  * Lớp dịch các thông báo lỗi từ API thành thông báo thân thiện cho người chơi
@@ -24,17 +20,6 @@ class MessageTranslator {
 	 * Chuyển đổi thông báo lỗi API thành thông báo thân thiện
 	 */
 	public static function translateErrorMessage(string $errorMessage) : string {
-		// Ghi nhận dữ liệu đầu vào chính xác nhất
-		if (class_exists("\NapThe\NapThe")) {
-			$plugin = \NapThe\NapThe::getInstance();
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->log(
-					"translateErrorMessage received exactly: '" . $errorMessage . "'",
-					"general"
-				);
-			}
-		}
-
 		// Đây là thông báo do FormManager tạo ra - không cần dịch lại
 		if (preg_match('/Vui lòng không để trống|để trống số sê-ri|sê-ri hoặc mã thẻ/', $errorMessage)) {
 			return $errorMessage;
@@ -135,62 +120,7 @@ class MessageTranslator {
 			return "Hệ thống đang bảo trì, vui lòng thử lại sau";
 		}
 
-		// Nếu thông báo có vẻ đã được viết bằng tiếng Việt (có dấu)
-		if (preg_match('/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/u', $errorMessage)) {
-			return $errorMessage; // Trả về ngay vì đây có thể là thông báo đã được dịch
-		}
-
-		// Xử lý bằng cách chuyển đổi các từ kỹ thuật sang thông báo thân thiện
-		$technicalTerms = [
-			"charging" => "Nạp thẻ",
-			"card" => "thẻ",
-			"invalid" => "không hợp lệ",
-			"wrong" => "không đúng",
-			"error" => "lỗi",
-			"telco" => "nhà mạng",
-			"serial" => "số seri",
-			"code" => "mã thẻ",
-			"used" => "đã sử dụng",
-			"existed" => "đã tồn tại",
-			"amount" => "mệnh giá",
-			"process" => "xử lý",
-			"maintenance" => "bảo trì",
-			"system" => "hệ thống",
-			"pending" => "đang xử lý",
-			"request" => "yêu cầu",
-			"partner" => "đối tác",
-			"sign" => "chữ ký"
-		];
-
-		// Thử chuyển đổi thông báo kỹ thuật sang thông báo thân thiện
-		$friendlyMessage = $errorMessage;
-		foreach ($technicalTerms as $technical => $friendly) {
-			$friendlyMessage = str_replace($technical, $friendly, $friendlyMessage);
-		}
-
-		// Nếu thông báo đã được chuyển đổi, thêm chữ đầu tiên viết hoa
-		if ($friendlyMessage !== $errorMessage) {
-			// Xóa bỏ các ký tự đặc biệt
-			$friendlyMessage = preg_replace('/[._-]/', ' ', $friendlyMessage);
-			// Chuyển đổi chữ đầu tiên thành viết hoa
-			if ($friendlyMessage !== null) {
-				$friendlyMessage = ucfirst($friendlyMessage);
-			}
-			return $friendlyMessage ?? "Có lỗi xảy ra khi xử lý thẻ";
-		}
-
-		// Nếu không thể xử lý, log thông báo gốc
-		if (class_exists("\NapThe\NapThe")) {
-			$plugin = \NapThe\NapThe::getInstance();
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->log(
-					"Unable to translate error message: '" . $errorMessage . "', using default",
-					"general"
-				);
-			}
-		}
-
-		// Return với thông báo mặc định
+		// Unknown provider text may contain card details. Never echo it to players or logs.
 		return "Có lỗi xảy ra khi xử lý thẻ";
 	}
 
@@ -198,30 +128,7 @@ class MessageTranslator {
 	 * Định dạng thông báo lỗi với prefix
 	 */
 	public static function formatErrorMessage(string $errorMessage) : string {
-		// Ghi nhận thông báo gốc để phục vụ gỡ lỗi
-		if (class_exists("\NapThe\NapThe")) {
-			$plugin = \NapThe\NapThe::getInstance();
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->log(
-					"Pre-translation error message: '{$errorMessage}'",
-					"general"
-				);
-			}
-		}
-
 		$translatedMessage = self::translateErrorMessage($errorMessage);
-
-		// Ghi nhận thông báo đã dịch để phục vụ gỡ lỗi
-		if (class_exists("\NapThe\NapThe")) {
-			$plugin = \NapThe\NapThe::getInstance();
-			if (isset($plugin->debugLogger)) {
-				$plugin->debugLogger->log(
-					"Translated error message: '{$translatedMessage}' (from '{$errorMessage}')",
-					"general"
-				);
-			}
-		}
-
 		return Constant::PREFIX . $translatedMessage;
 	}
 

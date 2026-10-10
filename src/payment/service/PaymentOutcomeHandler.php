@@ -9,7 +9,6 @@ use NapThe\NapThe;
 use NapThe\payment\CardPayment;
 use NapThe\payment\PaymentStatus;
 use NapThe\payment\PendingPaymentStore;
-use NapThe\utils\MessageTranslator;
 
 final class PaymentOutcomeHandler {
 	public function __construct(
@@ -62,11 +61,11 @@ final class PaymentOutcomeHandler {
 		);
 
 		$payment->setStatus(PaymentStatus::FAILED);
-		$payment->setFailReason($response->getMessage());
+		$payment->setFailReason("Provider status " . $response->getStatus());
 
 		$player = $this->plugin->getServer()->getPlayerExact($payment->getPlayerName());
 		if ($player !== null) {
-			$player->sendMessage(MessageTranslator::formatErrorMessage($response->getMessage()));
+			$player->sendMessage($response->getFriendlyMessage());
 		}
 
 		return $payment;

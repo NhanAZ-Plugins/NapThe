@@ -12,8 +12,6 @@ use NapThe\utils\MessageTranslator;
 use pocketmine\player\Player;
 use Ramsey\Uuid\Uuid;
 use function is_array;
-use function strpos;
-use function substr;
 use function time;
 
 final class NapTheCardForm {
@@ -80,10 +78,6 @@ final class NapTheCardForm {
 
 			$this->plugin->debugLogger->log("Player {$player->getName()} submitted card payment - Telco: $telco, Amount: $amount, RequestID: $requestId", "payment");
 
-			$maskedSerial = substr($serial, 0, 4) . "****" . substr($serial, -4);
-			$maskedCode = substr($code, 0, 2) . "****" . substr($code, -2);
-			$this->plugin->debugLogger->log("Card details - Serial: $maskedSerial, Code: $maskedCode, RequestID: $requestId", "payment");
-
 			$response = $this->plugin->getPaymentManager()->processCardPayment(
 				$player,
 				$telco,
@@ -99,16 +93,8 @@ final class NapTheCardForm {
 				return;
 			}
 
-			$this->plugin->debugLogger->log("Got error message from API: '{$response->getMessage()}'", "payment");
-			$message = $response->getMessage();
-
-			if (strpos($message, "card_existed") !== false) {
-				$player->sendMessage(MessageTranslator::formatErrorMessage("Thẻ này đã được sử dụng trước đó"));
-			} else {
-				$player->sendMessage(MessageTranslator::formatErrorMessage($message));
-			}
-
-			$this->plugin->debugLogger->log("Card processing failed immediately for {$player->getName()} - Reason: {$response->getMessage()}", "payment");
+			$player->sendMessage($response->getFriendlyMessage());
+			$this->plugin->debugLogger->log("Card processing failed immediately for {$player->getName()} - Status: {$response->getStatus()}", "payment");
 		});
 
 		$form->setTitle("Nạp Thẻ")
