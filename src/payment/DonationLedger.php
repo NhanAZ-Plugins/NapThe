@@ -86,10 +86,7 @@ final class DonationLedger {
 			$this->database->exec('COMMIT');
 			return true;
 		} catch (Throwable $error) {
-			if ($this->database->inTransaction()) {
-				$this->database->rollBack();
-			}
-			throw $error;
+			$this->rollbackAfter($error);
 		}
 	}
 
@@ -113,11 +110,17 @@ final class DonationLedger {
 			}
 			$this->database->exec('COMMIT');
 		} catch (Throwable $error) {
-			if ($this->database->inTransaction()) {
-				$this->database->rollBack();
-			}
-			throw $error;
+			$this->rollbackAfter($error);
 		}
+	}
+
+	private function rollbackAfter(Throwable $error) : never {
+		try {
+			$this->database->exec('ROLLBACK');
+		} catch (Throwable $rollbackError) {
+			throw new RuntimeException('Donation ledger rollback failed: ' . $rollbackError->getMessage(), 0, $error);
+		}
+		throw $error;
 	}
 
 	private function beginWrite() : void {
