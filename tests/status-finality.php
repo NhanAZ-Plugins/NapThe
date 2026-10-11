@@ -58,6 +58,7 @@ namespace NapThe {
 	final class NapThe {
 		public TestLogger $debugLogger;
 		public int $donations = 0;
+		public bool $failDonation = false;
 		private TestServer $server;
 		private TestScheduler $scheduler;
 
@@ -75,8 +76,12 @@ namespace NapThe {
 			return $this->scheduler;
 		}
 
-		public function successfulDonation(string $playerName, int $amount) : void {
+		public function successfulDonationOnce(string $requestId, string $playerName, int $amount) : bool {
+			if ($this->failDonation) {
+				throw new \RuntimeException('Donation ledger unavailable');
+			}
 			$this->donations++;
+			return true;
 		}
 	}
 }
@@ -115,6 +120,27 @@ namespace {
 		}
 	}
 
+	function checkLedgerFailure(bool $immediate) : void {
+		$plugin = new \NapThe\NapThe();
+		$plugin->failDonation = true;
+		$store = new \NapThe\payment\PendingPaymentStore();
+		$payment = new \NapThe\payment\CardPayment('ledger-failure', 'Player', 'TELCO', 'code', 'serial', 10000, time() - 31);
+		$store->add('ledger-failure', $payment);
+		$outcome = new \NapThe\payment\service\PaymentOutcomeHandler($plugin, $store);
+		$scheduler = new \NapThe\payment\service\ImmediateCheckScheduler($plugin, $store, $outcome);
+		$checker = new \NapThe\payment\service\PendingPaymentChecker($plugin, $store, $outcome, $scheduler);
+		\NapThe\api\TrumTheAPI::$next = new \NapThe\api\ChargeStatusResponse(1, 'SUCCESS');
+		if ($immediate) {
+			$scheduler->scheduleImmediateCheck('ledger-failure', 1, 0);
+			$plugin->getScheduler()->runOne();
+		} else {
+			$checker->checkPendingPayments();
+		}
+		if ($store->get('ledger-failure') !== $payment || !$payment->isPending() || $plugin->donations !== 0) {
+			throw new \RuntimeException('A ledger failure discarded a pending payment');
+		}
+	}
+
 	foreach ([-1, 2, 3, 7, 8, 9, 42] as $status) {
 		checkStatus($status, false, false);
 		checkStatus($status, true, false);
@@ -125,6 +151,8 @@ namespace {
 		checkStatus($status, false, true);
 		checkStatus($status, true, true);
 	}
+	checkLedgerFailure(false);
+	checkLedgerFailure(true);
 
 	echo "Periodic and immediate checks retain inconclusive statuses\n";
 }

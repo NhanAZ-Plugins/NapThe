@@ -7,7 +7,7 @@ namespace NapThe\payment\service;
 use NapThe\NapThe;
 use NapThe\payment\CardPayment;
 use NapThe\payment\PendingPaymentStore;
-use pocketmine\utils\InternetException;
+use Throwable;
 use function count;
 use function time;
 
@@ -97,7 +97,7 @@ final class PendingPaymentChecker {
 					"FAILED",
 					true
 				);
-			} catch (InternetException $e) {
+			} catch (Throwable $e) {
 				$this->plugin->debugLogger->logPayment(
 					"CHECK_EXCEPTION",
 					$payment->getPlayerName(),

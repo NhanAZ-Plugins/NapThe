@@ -6,6 +6,7 @@ namespace NapThe;
 
 use NapThe\manager\FormManager;
 use NapThe\manager\PaymentManager;
+use NapThe\payment\DonationLedger;
 use NapThe\traits\NapTheTopNapTheTrait;
 use NapThe\utils\DebugLogger;
 use pocketmine\command\Command;
@@ -13,17 +14,11 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
-use function count;
-use function implode;
-use function in_array;
+use function bin2hex;
 use function is_numeric;
 use function max;
 use function mkdir;
-use function strlen;
-use function strtoupper;
-use function substr;
-use function time;
-use function uniqid;
+use function random_bytes;
 use function version_compare;
 use const PHP_VERSION;
 
@@ -34,6 +29,7 @@ class NapThe extends PluginBase {
 	public DebugLogger $debugLogger;
 
 	private Config $napTheData;
+	private DonationLedger $donationLedger;
 	private FormManager $formManager;
 	private PaymentManager $paymentManager;
 	private bool $ready = false;
@@ -68,6 +64,13 @@ class NapThe extends PluginBase {
 			Constant::apiUrl();
 		} catch (\InvalidArgumentException $e) {
 			$this->getLogger()->error($e->getMessage());
+			return;
+		}
+		try {
+			$this->donationLedger = new DonationLedger($this->getDataFolder() . 'donations.sqlite', $this->napTheData->getAll());
+			$this->syncDonationTotals();
+		} catch (\Throwable $e) {
+			$this->getLogger()->error('Could not initialize the donation ledger: ' . $e->getMessage());
 			return;
 		}
 
@@ -141,16 +144,20 @@ class NapThe extends PluginBase {
 	}
 
 	public function successfulDonation(string $playerName, int $amount) : void {
+		$this->successfulDonationOnce('manual-' . bin2hex(random_bytes(16)), $playerName, $amount);
+	}
+
+	public function successfulDonationOnce(string $requestId, string $playerName, int $amount) : bool {
+		$recorded = $this->donationLedger->record($requestId, $playerName, $amount);
+		$this->syncDonationTotals();
+		if (!$recorded) {
+			return false;
+		}
+
 		$formattedAmount = utils\MessageTranslator::formatAmount($amount);
 
 		// Gửi thông báo nạp thẻ trên toàn server
 		$this->getServer()->broadcastMessage(utils\MessageTranslator::formatSuccessMessage("Người chơi $playerName đã nạp {$formattedAmount} để ủng hộ máy chủ!"));
-
-		// Cập nhật thống kê người chơi an toàn
-		$currentAmount = $this->napTheData->getNested($playerName, 0);
-		$safeAmount = is_numeric($currentAmount) ? (int) $currentAmount : 0;
-		$this->napTheData->setNested($playerName, $safeAmount + $amount);
-		$this->napTheData->save();
 
 		// Thông báo nếu người chơi đang online
 		$player = $this->getServer()->getPlayerExact($playerName);
@@ -159,6 +166,15 @@ class NapThe extends PluginBase {
 		}
 
 		$this->debugLogger->log("Successful donation - Player: $playerName, Amount: $amount", "payment");
+		return true;
+	}
+
+	private function syncDonationTotals() : void {
+		$this->napTheData->setAll([]);
+		foreach ($this->donationLedger->totals() as $playerName => $amount) {
+			$this->napTheData->setNested((string) $playerName, $amount);
+		}
+		$this->napTheData->save();
 	}
 
 	public function getNapTheData() : Config {

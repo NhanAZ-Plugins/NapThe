@@ -25,13 +25,12 @@ final class PaymentOutcomeHandler {
 		string $failureEvent,
 		bool $logSummary
 	) : CardPayment {
-		$this->store->remove($requestId);
-
 		if ($response->isSuccessful()) {
 			$amount = $response->getAmount() ?? $payment->getAmount();
+			$recorded = $this->plugin->successfulDonationOnce($requestId, $payment->getPlayerName(), $amount);
 
 			$this->plugin->debugLogger->logPayment(
-				$successEvent,
+				$recorded ? $successEvent : 'SUCCESS_ALREADY_RECORDED',
 				$payment->getPlayerName(),
 				$requestId,
 				[
@@ -42,10 +41,9 @@ final class PaymentOutcomeHandler {
 				]
 			);
 
-			$this->plugin->successfulDonation($payment->getPlayerName(), $amount);
-
 			$payment->setStatus(PaymentStatus::SUCCESSFUL);
 			$payment->setProcessedAmount($amount);
+			$this->store->remove($requestId);
 
 			return $payment;
 		}
@@ -62,6 +60,7 @@ final class PaymentOutcomeHandler {
 
 		$payment->setStatus(PaymentStatus::FAILED);
 		$payment->setFailReason("Provider status " . $response->getStatus());
+		$this->store->remove($requestId);
 
 		$player = $this->plugin->getServer()->getPlayerExact($payment->getPlayerName());
 		if ($player !== null) {
