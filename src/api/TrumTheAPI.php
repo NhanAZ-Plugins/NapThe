@@ -165,10 +165,7 @@ final class TrumTheAPI {
 
 		// Kiểm tra giới hạn gọi API
 		if (!self::canMakeApiRequest('status')) {
-			return new ChargeStatusResponse(
-				-1,
-				"Too many API requests. Please try again in a few seconds."
-			);
+			return null;
 		}
 
 		$partnerId = Constant::partnerId();
