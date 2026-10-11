@@ -7,6 +7,7 @@ namespace NapThe\api;
 use NapThe\StatusCode;
 use NapThe\utils\DataTypeUtils;
 use JsonSerializable;
+use function in_array;
 use function strpos;
 use function strtoupper;
 
@@ -108,6 +109,21 @@ class ChargeStatusResponse implements JsonSerializable {
 		// if message contains "PENDING" (in case the API returns status 99 with PENDING message)
 		return $this->status === StatusCode::PENDING ||
 			   (strtoupper($this->message) === "PENDING" && $this->status === StatusCode::FAILED_WITH_REASON);
+	}
+
+	public function isFinal() : bool {
+		if ($this->isSuccessful()) {
+			return true;
+		}
+		if ($this->isPending()) {
+			return false;
+		}
+		return in_array($this->status, [
+			StatusCode::INCORRECT_CARD,
+			StatusCode::CARD_USED,
+			StatusCode::CARD_NOT_SUPPORTED,
+			StatusCode::FAILED_WITH_REASON
+		], true);
 	}
 
 	/**

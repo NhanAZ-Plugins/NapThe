@@ -70,6 +70,19 @@ final class ImmediateCheckScheduler {
 						return;
 					}
 
+					if (!$response->isFinal()) {
+						$this->plugin->debugLogger->logPayment(
+							"CHECK_UNRESOLVED_IMMEDIATE",
+							$payment->getPlayerName(),
+							$requestId,
+							["status" => $response->getStatus()]
+						);
+						if ($maxRetries > 0) {
+							$this->scheduleImmediateCheck($requestId, $retryDelay, $maxRetries - 1);
+						}
+						return;
+					}
+
 					$this->outcomeHandler->finalize(
 						$requestId,
 						$payment,

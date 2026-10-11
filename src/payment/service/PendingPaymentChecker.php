@@ -79,6 +79,16 @@ final class PendingPaymentChecker {
 					continue;
 				}
 
+				if (!$response->isFinal()) {
+					$this->plugin->debugLogger->logPayment(
+						"CHECK_UNRESOLVED",
+						$payment->getPlayerName(),
+						$requestId,
+						["status" => $response->getStatus()]
+					);
+					continue;
+				}
+
 				$processedPayments[$requestId] = $this->outcomeHandler->finalize(
 					$requestId,
 					$payment,

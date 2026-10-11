@@ -81,6 +81,9 @@ jobs:
       - name: Keep pending payments after throttled status checks
         run: php tests/status-rate-limit.php
 
+      - name: Keep inconclusive payment statuses pending
+        run: php tests/status-finality.php
+
       - name: Analyze and build with pinned DevTools
         id: build
         uses: NhanAZ/DevTools@6606444fc32787a3e50275fdb668c2310e899740 # v1.0.3
