@@ -23,6 +23,7 @@ final class DonationLedger {
 		$this->database->exec('PRAGMA synchronous = FULL');
 		$this->database->exec('CREATE TABLE IF NOT EXISTS donation_totals (player_name TEXT PRIMARY KEY, amount INTEGER NOT NULL CHECK (amount >= 0))');
 		$this->database->exec('CREATE TABLE IF NOT EXISTS processed_donations (request_id TEXT PRIMARY KEY, player_name TEXT NOT NULL, amount INTEGER NOT NULL CHECK (amount > 0), processed_at INTEGER NOT NULL)');
+		$this->database->exec('CREATE TABLE IF NOT EXISTS pending_payments (request_id TEXT PRIMARY KEY, player_name TEXT NOT NULL, amount INTEGER NOT NULL CHECK (amount > 0), created_at INTEGER NOT NULL)');
 		$this->database->exec('CREATE TABLE IF NOT EXISTS ledger_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL)');
 		$this->importLegacyTotals($legacyTotals);
 	}
@@ -64,6 +65,7 @@ final class DonationLedger {
 				if (($existing['player_name'] ?? null) !== $playerName || ($existing['amount'] ?? null) !== $amount) {
 					throw new UnexpectedValueException('Donation request ID was reused with different details');
 				}
+				$this->deletePending($requestId);
 				$this->database->exec('COMMIT');
 				return false;
 			}
@@ -83,11 +85,85 @@ final class DonationLedger {
 			$insert->execute([$requestId, $playerName, $amount, time()]);
 			$update = $this->database->prepare('INSERT INTO donation_totals (player_name, amount) VALUES (?, ?) ON CONFLICT(player_name) DO UPDATE SET amount = excluded.amount');
 			$update->execute([$playerName, $previous + $amount]);
+			$this->deletePending($requestId);
 			$this->database->exec('COMMIT');
 			return true;
 		} catch (Throwable $error) {
 			$this->rollbackAfter($error);
 		}
+	}
+
+	public function recordPending(string $requestId, string $playerName, int $amount, int $createdAt) : void {
+		if ($requestId === '' || $playerName === '' || $amount <= 0 || $createdAt <= 0) {
+			throw new InvalidArgumentException('Pending payment request, player, amount and creation time must be valid');
+		}
+		$this->beginWrite();
+		try {
+			$processed = $this->database->prepare('SELECT player_name, amount FROM processed_donations WHERE request_id = ?');
+			$processed->execute([$requestId]);
+			$existingProcessed = $processed->fetch();
+			if ($existingProcessed !== false) {
+				if (!is_array($existingProcessed) || ($existingProcessed['player_name'] ?? null) !== $playerName || ($existingProcessed['amount'] ?? null) !== $amount) {
+					throw new UnexpectedValueException('Donation request ID was reused with different details');
+				}
+				$this->deletePending($requestId);
+				$this->database->exec('COMMIT');
+				return;
+			}
+
+			$pending = $this->database->prepare('SELECT player_name, amount, created_at FROM pending_payments WHERE request_id = ?');
+			$pending->execute([$requestId]);
+			$existingPending = $pending->fetch();
+			if ($existingPending !== false) {
+				if (!is_array($existingPending) || ($existingPending['player_name'] ?? null) !== $playerName || ($existingPending['amount'] ?? null) !== $amount || ($existingPending['created_at'] ?? null) !== $createdAt) {
+					throw new UnexpectedValueException('Pending payment request ID was reused with different details');
+				}
+				$this->database->exec('COMMIT');
+				return;
+			}
+
+			$insert = $this->database->prepare('INSERT INTO pending_payments (request_id, player_name, amount, created_at) VALUES (?, ?, ?, ?)');
+			$insert->execute([$requestId, $playerName, $amount, $createdAt]);
+			$this->database->exec('COMMIT');
+		} catch (Throwable $error) {
+			$this->rollbackAfter($error);
+		}
+	}
+
+	/** @return list<array{request_id: string, player_name: string, amount: int, created_at: int}> */
+	public function pendingPayments() : array {
+		$rows = $this->database->query('SELECT request_id, player_name, amount, created_at FROM pending_payments ORDER BY created_at, request_id');
+		if ($rows === false) {
+			throw new RuntimeException('Could not read pending payments');
+		}
+		$payments = [];
+		while (($row = $rows->fetch()) !== false) {
+			if (!is_array($row) || !is_string($row['request_id'] ?? null) || !is_string($row['player_name'] ?? null) || !is_int($row['amount'] ?? null) || !is_int($row['created_at'] ?? null)) {
+				throw new UnexpectedValueException('Invalid pending payment row in ledger');
+			}
+			$payments[] = [
+				'request_id' => $row['request_id'],
+				'player_name' => $row['player_name'],
+				'amount' => $row['amount'],
+				'created_at' => $row['created_at']
+			];
+		}
+		return $payments;
+	}
+
+	public function removePending(string $requestId) : void {
+		$this->beginWrite();
+		try {
+			$this->deletePending($requestId);
+			$this->database->exec('COMMIT');
+		} catch (Throwable $error) {
+			$this->rollbackAfter($error);
+		}
+	}
+
+	private function deletePending(string $requestId) : void {
+		$delete = $this->database->prepare('DELETE FROM pending_payments WHERE request_id = ?');
+		$delete->execute([$requestId]);
 	}
 
 	/** @param array<array-key, mixed> $legacyTotals */

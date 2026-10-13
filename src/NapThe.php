@@ -76,7 +76,7 @@ class NapThe extends PluginBase {
 
 		// Khởi tạo các trình quản lý
 		$this->formManager = new FormManager($this);
-		$this->paymentManager = new PaymentManager($this);
+		$this->paymentManager = new PaymentManager($this, $this->donationLedger);
 
 		// Bắt đầu tiến trình kiểm tra thanh toán
 		$this->paymentManager->startPaymentCheckTask();

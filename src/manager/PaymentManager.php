@@ -8,6 +8,7 @@ use NapThe\api\ChargeResponse;
 use NapThe\Constant;
 use NapThe\NapThe;
 use NapThe\payment\CardPayment;
+use NapThe\payment\DonationLedger;
 use NapThe\payment\PendingPaymentStore;
 use NapThe\payment\service\ChargeRequestHandler;
 use NapThe\payment\service\ImmediateCheckScheduler;
@@ -27,9 +28,9 @@ class PaymentManager {
 
 	private NapThe $plugin;
 
-	public function __construct(NapThe $plugin) {
+	public function __construct(NapThe $plugin, DonationLedger $donationLedger) {
 		$this->plugin = $plugin;
-		$this->pendingPaymentStore = new PendingPaymentStore();
+		$this->pendingPaymentStore = new PendingPaymentStore($donationLedger);
 
 		$outcomeHandler = new PaymentOutcomeHandler($plugin, $this->pendingPaymentStore);
 		$this->immediateCheckScheduler = new ImmediateCheckScheduler($plugin, $this->pendingPaymentStore, $outcomeHandler);

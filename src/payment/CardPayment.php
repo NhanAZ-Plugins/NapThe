@@ -22,18 +22,18 @@ class CardPayment implements JsonSerializable {
 	/**
 	 * @param string $requestId  Unique request ID for the payment
 	 * @param string $playerName Name of the player who initiated the payment
-	 * @param string $telco      Telco/provider code
-	 * @param string $code       Card code
-	 * @param string $serial     Card serial number
+	 * @param string|null $telco Telco/provider code, omitted for recovered payments
+	 * @param string|null $code  Card code, never persisted
+	 * @param string|null $serial Card serial number, never persisted
 	 * @param int    $amount     Card amount value
 	 * @param int    $createdAt  Timestamp when the payment was created
 	 */
 	public function __construct(
 		private string $requestId,
 		private string $playerName,
-		private string $telco,
-		private string $code,
-		private string $serial,
+		private ?string $telco,
+		private ?string $code,
+		private ?string $serial,
 		private int $amount,
 		private int $createdAt
 	) {
@@ -56,21 +56,21 @@ class CardPayment implements JsonSerializable {
 	/**
 	 * Get the telco/provider code
 	 */
-	public function getTelco() : string {
+	public function getTelco() : ?string {
 		return $this->telco;
 	}
 
 	/**
 	 * Get the card code
 	 */
-	public function getCode() : string {
+	public function getCode() : ?string {
 		return $this->code;
 	}
 
 	/**
 	 * Get the card serial number
 	 */
-	public function getSerial() : string {
+	public function getSerial() : ?string {
 		return $this->serial;
 	}
 
@@ -152,9 +152,13 @@ class CardPayment implements JsonSerializable {
 	}
 
 	/**
-	 * @return array<string, int|string>
+	 * @return array<string, int|string>|null
 	 */
-	public function toCardInfo() : array {
+	public function toCardInfo() : ?array {
+		if ($this->telco === null || $this->code === null || $this->serial === null) {
+			return null;
+		}
+
 		return [
 			'telco' => $this->telco,
 			'code' => $this->code,

@@ -87,6 +87,9 @@ jobs:
       - name: Verify donation ledger restart and duplicate handling
         run: php tests/donation-ledger.php
 
+      - name: Verify pending payment recovery after restart
+        run: php tests/pending-payment-recovery.php
+
       - name: Analyze and build with pinned DevTools
         id: build
         uses: NhanAZ/DevTools@6606444fc32787a3e50275fdb668c2310e899740 # v1.0.3
