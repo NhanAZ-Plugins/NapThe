@@ -52,4 +52,9 @@ if (!$ledger->record('request-overflow', 'Other', 1) || $ledger->totals()['Huge'
 	throw new RuntimeException('An overflow left a partial request or changed the total');
 }
 
-echo "Donation ledger preserves totals and request IDs across restart: $path\n";
+unset($ledger);
+if (!unlink($path)) {
+	throw new RuntimeException('Could not remove the temporary donation ledger fixture');
+}
+
+echo "Donation ledger preserves totals and request IDs across restart\n";

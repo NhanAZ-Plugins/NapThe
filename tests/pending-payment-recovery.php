@@ -137,5 +137,10 @@ namespace {
 		throw new \RuntimeException('Finalized recovered payment was duplicated or restored as pending');
 	}
 
+	unset($ledger);
+	if (!unlink($path)) {
+		throw new \RuntimeException('Could not remove the temporary pending payment fixture');
+	}
+
 	echo "Pending payment recovery stores metadata only, checks without card fields and finalizes once\n";
 }
