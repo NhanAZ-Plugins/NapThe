@@ -45,8 +45,8 @@ class Constant {
 		return $url;
 	}
 
-	/** API endpoint for trumthe.vn */
-	public const URL = "https://trumthe.vn/chargingws/v2";
+	/** API endpoint at the provider-announced current domain */
+	public const URL = "https://doithegiagoc.com/chargingws/v2";
 
 	/** Timeout for API calls in seconds */
 	public const API_TIMEOUT = 10;
