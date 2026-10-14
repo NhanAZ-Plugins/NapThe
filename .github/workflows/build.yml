@@ -78,6 +78,9 @@ jobs:
           }
           PHP
 
+      - name: Verify provider form request encoding
+        run: php tests/provider-request-format.php
+
       - name: Keep pending payments after throttled status checks
         run: php tests/status-rate-limit.php
 

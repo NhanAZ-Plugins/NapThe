@@ -10,9 +10,9 @@ use NapThe\utils\DataTypeUtils;
 use pocketmine\utils\Internet;
 use pocketmine\utils\InternetException;
 use pocketmine\utils\InternetRequestResult;
+use function http_build_query;
 use function is_array;
 use function json_decode;
-use function json_encode;
 use function max;
 use function md5;
 use function time;
@@ -240,17 +240,13 @@ final class TrumTheAPI {
 			$apiUrl = Constant::apiUrl();
 			$timeout = max(1, Constant::API_TIMEOUT);
 
-			// Mã hoá dữ liệu JSON cho POST request
-			$jsonData = json_encode($data);
-			if ($jsonData === false) {
-				return null;
-			}
+			$formData = http_build_query($data, "", "&", PHP_QUERY_RFC1738);
 
 			return Internet::postURL(
 				$apiUrl,
-				$jsonData,
+				$formData,
 				$timeout,
-				["Content-Type: application/json"]
+				["Content-Type: application/x-www-form-urlencoded"]
 			);
 		} catch (InternetException $e) {
 			throw $e;
