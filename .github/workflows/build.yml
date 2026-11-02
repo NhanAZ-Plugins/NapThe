@@ -45,7 +45,7 @@ jobs:
       - name: Set up Axolotl PHP 8.2 environment
         shell: bash
         env:
-          INPUT_PHP-VERSION: "8.2"
+          INPUT_PHP-VERSION: "8.4"
           INPUT_PM-VERSION-MAJOR: "5"
           INPUT_INSTALL-PATH: ./.php-bin
         run: node .devtools-dependencies/setup-php-action/dist/index.js
