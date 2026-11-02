@@ -43,7 +43,7 @@ class NapThe extends PluginBase {
 
 	protected function onEnable() : void {
 		// Kiểm tra phiên bản PHP
-		if (version_compare(PHP_VERSION, '8.2.0', '<')) {
+		if (version_compare((string) phpversion(), '8.2.0', '<')) {
 			$this->getLogger()->error("Plugin require PHP 8.2.0 or higher. Current version: " . PHP_VERSION);
 			return;
 		}
