@@ -1,9 +1,13 @@
 # NapThe
 
-NapThe is an experimental Vietnamese prepaid card donation plugin for PocketMine-MP. It submits card details to TrumThe and tracks confirmed donation totals. The plugin manifest declares minimum API `5.0.0`, and the source requires PHP 8.2 or newer. Disposable Axolotl-PM 5.51.1 boots have been checked without credentials and with dummy credentials, but the live payment service and a wider server version range have not been verified.
+Experimental prepaid card donation plugin for PocketMine-MP with TrumThe integration
 
-> [!WARNING]
-> An API credential was previously committed to this repository. Removing it from current source does not revoke the exposed value in Git history. Revoke that credential with the provider and issue a new one before any real transaction. Do not reuse the exposed credential.
+[![CI](https://github.com/NhanAZ-Plugins/NapThe/actions/workflows/build.yml/badge.svg)](https://github.com/NhanAZ-Plugins/NapThe/actions/workflows/build.yml)
+[![Discord](https://img.shields.io/discord/986553214889517088?label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/j2X83ujT6c)
+
+## Overview
+
+This is an experimental repository. Review its documented limitations before using it on a live server.
 
 ## Configuration and dependencies
 
