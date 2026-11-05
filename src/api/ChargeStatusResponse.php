@@ -211,7 +211,7 @@ class ChargeStatusResponse implements JsonSerializable {
 			return \NapThe\utils\MessageTranslator::formatErrorMessage("connection.failed");
 		}
 
-		// Xử lý đặc biệt cho card_existed
+		// Handle the card_existed provider response.
 		if (strpos($this->message, "card_existed") !== false) {
 			return \NapThe\utils\MessageTranslator::formatErrorMessage("charging.card_existed");
 		}

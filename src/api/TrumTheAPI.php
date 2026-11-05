@@ -34,7 +34,7 @@ final class TrumTheAPI {
 	 * @param int $seconds Number of seconds between API requests
 	 */
 	public static function setApiCooldown(int $seconds) : void {
-		self::$apiCooldown = max(1, $seconds); // Tối thiểu 1 giây
+		self::$apiCooldown = max(1, $seconds); // Keep at least one second between requests.
 	}
 
 	/**
@@ -56,7 +56,7 @@ final class TrumTheAPI {
 		$serverIp = $server->getIp();
 		$currentTime = time();
 
-		// Dùng IP máy chủ làm khoá theo dõi
+		// Use the server IP as the rate-limit key.
 		$key = $serverIp . '_' . $requestType;
 
 		if (isset(self::$lastApiRequests[$key])) {
@@ -69,7 +69,7 @@ final class TrumTheAPI {
 			}
 		}
 
-		// Cập nhật thời gian request cuối
+		// Update the last request time.
 		self::$lastApiRequests[$key] = $currentTime;
 		return true;
 	}
@@ -97,7 +97,7 @@ final class TrumTheAPI {
 	) : ?ChargeResponse {
 		$plugin = NapThe::getInstance();
 
-		// Kiểm tra giới hạn gọi API
+		// Check the API request limit.
 		if (!self::canMakeApiRequest('charge')) {
 			return new ChargeResponse(
 				-1,
@@ -142,7 +142,7 @@ final class TrumTheAPI {
 		$responseDataTyped = DataTypeUtils::toStringKeyedArray($responseData);
 		$plugin->debugLogger->logApi("CHARGE_RESPONSE");
 
-		// Ghi log đặc biệt cho trạng thái ĐANG XỬ LÝ (PENDING)
+		// Log the pending status separately.
 		if (isset($responseData['message']) && $responseData['message'] === "PENDING") {
 			$plugin->debugLogger->log("Card with RequestID: $requestId is PENDING processing (status 99 with PENDING message). This is expected behavior.", "api");
 		}
@@ -163,7 +163,7 @@ final class TrumTheAPI {
 	public static function checkCardStatus(string $requestId, ?array $cardInfo = null) : ?ChargeStatusResponse {
 		$plugin = NapThe::getInstance();
 
-		// Kiểm tra giới hạn gọi API
+		// Check the API request limit.
 		if (!self::canMakeApiRequest('status')) {
 			return null;
 		}
@@ -174,21 +174,21 @@ final class TrumTheAPI {
 			throw new \InvalidArgumentException("TRUMTHE_PARTNER_ID and TRUMTHE_PARTNER_KEY must be set in the server process environment");
 		}
 
-		// Tạo dữ liệu cơ bản
+		// Create the base request data.
 		$data = [
 			"request_id" => $requestId,
 			"partner_id" => $partnerId,
 			"command" => "check"
 		];
 
-		// Nếu có thông tin thẻ gốc, thêm vào yêu cầu và tính toán sign giống như lúc charging
+			// Include the original card data and calculate the charge signature when available.
 		if ($cardInfo !== null && isset($cardInfo['code'], $cardInfo['serial'])) {
 			$data['telco'] = $cardInfo['telco'] ?? '';
 			$data['code'] = $cardInfo['code'];
 			$data['serial'] = $cardInfo['serial'];
 			if (isset($cardInfo['amount'])) $data['amount'] = $cardInfo['amount'];
 
-			// Tính sign giống như trong chargeCard
+			// Calculate the same signature used by chargeCard.
 			$codeStr = DataTypeUtils::toString($cardInfo['code']);
 			$serialStr = DataTypeUtils::toString($cardInfo['serial']);
 			$data['sign'] = md5($partnerKey . $codeStr . $serialStr);
@@ -198,7 +198,7 @@ final class TrumTheAPI {
 				"api"
 			);
 		} else {
-			// Nếu không có thông tin thẻ, sử dụng sign đơn giản
+			// Use the request-ID-only signature when card data is unavailable.
 			$data['sign'] = md5($partnerKey . $requestId);
 		}
 

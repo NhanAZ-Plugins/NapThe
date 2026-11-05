@@ -27,7 +27,7 @@ final class NapTheCardForm {
 		$remainingTime = $this->cooldownTracker->getRemainingNapTheCooldown($playerName, $currentTime);
 
 		if ($remainingTime > 0) {
-			$player->sendMessage(MessageTranslator::formatErrorMessage("Vui lòng đợi {$remainingTime} giây trước khi mở form nạp thẻ lại."));
+			$player->sendMessage(MessageTranslator::formatErrorMessage("Please wait {$remainingTime} seconds before opening the card form again."));
 			$this->plugin->debugLogger->log("Form spam prevented - Player: {$playerName} tried to open napthe form too quickly", "form");
 			return;
 		}
@@ -49,7 +49,7 @@ final class NapTheCardForm {
 			$remainingTime = $this->cooldownTracker->getRemainingNapTheCooldown($playerName, $currentTime);
 
 			if ($remainingTime > 0) {
-				$player->sendMessage(MessageTranslator::formatErrorMessage("Gửi quá nhanh! Vui lòng đợi {$remainingTime} giây trước khi gửi lại."));
+				$player->sendMessage(MessageTranslator::formatErrorMessage("You are submitting too quickly. Please wait {$remainingTime} seconds before trying again."));
 				$this->plugin->debugLogger->log("Form submission throttled - Player: {$playerName} tried to submit too quickly", "form");
 				return;
 			}
@@ -57,7 +57,7 @@ final class NapTheCardForm {
 			$this->cooldownTracker->touchNapTheCooldown($playerName, $currentTime);
 
 			if (!is_array($data)) {
-				$player->sendMessage(MessageTranslator::formatErrorMessage("Có lỗi xảy ra khi xử lý biểu mẫu!"));
+				$player->sendMessage(MessageTranslator::formatErrorMessage("An error occurred while processing the form."));
 				return;
 			}
 
@@ -67,7 +67,7 @@ final class NapTheCardForm {
 			$code = DataTypeUtils::toString($data["code"] ?? "");
 
 			if ($serial === "" || $code === "") {
-				$player->sendMessage("Vui lòng không để trống số sê-ri hoặc mã thẻ.");
+				$player->sendMessage("Please enter both the serial number and card code.");
 				$this->plugin->debugLogger->log("Player {$player->getName()} submitted form with empty serial or code", "payment");
 				return;
 			}
@@ -88,7 +88,7 @@ final class NapTheCardForm {
 			);
 
 			if ($response->isSuccessful() || $response->isPending()) {
-				$player->sendMessage(MessageTranslator::formatInfoMessage("Thẻ của bạn đang được xử lý, vui lòng đợi..."));
+				$player->sendMessage(MessageTranslator::formatInfoMessage("Your card is being processed. Please wait..."));
 				$this->plugin->debugLogger->log("Card processing started for {$player->getName()} - RequestID: $requestId", "payment");
 				return;
 			}
@@ -97,11 +97,11 @@ final class NapTheCardForm {
 			$this->plugin->debugLogger->log("Card processing failed immediately for {$player->getName()} - Status: {$response->getStatus()}", "payment");
 		});
 
-		$form->setTitle("Nạp Thẻ")
-			->addDropdown("Loại thẻ", Constant::TELCO_DISPLAY, 0, "telco")
-			->addDropdown("Mệnh giá", Constant::AMOUNT_DISPLAY, 0, "amount")
-			->addInput("Số sê-ri", "Ví dụ: 1000...", null, "serial")
-			->addInput("Mã thẻ", "Ví dụ: 3128...", null, "code");
+		$form->setTitle("Prepaid Card")
+			->addDropdown("Card provider", Constant::TELCO_DISPLAY, 0, "telco")
+			->addDropdown("Card amount", Constant::AMOUNT_DISPLAY, 0, "amount")
+			->addInput("Serial number", "Example: 1000...", null, "serial")
+			->addInput("Card code", "Example: 3128...", null, "code");
 
 		return $form;
 	}

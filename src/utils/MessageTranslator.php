@@ -11,144 +11,96 @@ use function str_starts_with;
 use function stripos;
 use function strpos;
 
-/**
- * Lớp dịch các thông báo lỗi từ API thành thông báo thân thiện cho người chơi
- */
-class MessageTranslator {
-
-	/**
-	 * Chuyển đổi thông báo lỗi API thành thông báo thân thiện
-	 */
+/** Maps provider errors to safe player-facing messages. */
+final class MessageTranslator {
+	/** Convert provider errors into safe player-facing messages. */
 	public static function translateErrorMessage(string $errorMessage) : string {
-		// Đây là thông báo do FormManager tạo ra - không cần dịch lại
-		if (preg_match('/Vui lòng không để trống|để trống số sê-ri|sê-ri hoặc mã thẻ/', $errorMessage)) {
+		if (preg_match('/Please enter both the serial number and card code|Please wait/i', $errorMessage) === 1) {
 			return $errorMessage;
 		}
 
-		// Trường hợp đặc biệt xử lý trực tiếp
-		if ($errorMessage === "charging.card_existed") {
-			return "Thẻ này đã được sử dụng trước đó";
+		if ($errorMessage === "charging.card_existed" || strpos($errorMessage, "card_existed") !== false) {
+			return "This card has already been used.";
 		}
 
-		// Kiểm tra chuỗi con
-		if (strpos($errorMessage, "card_existed") !== false) {
-			return "Thẻ này đã được sử dụng trước đó";
-		}
-
-		// Ánh xạ các thông báo lỗi API thành thông báo thân thiện
 		$errorMappings = [
-			// Các lỗi từ hệ thống nạp thẻ
-			"charging.card_existed" => "Thẻ này đã được sử dụng trước đó",
-			"charging.card.wrong" => "Mã thẻ hoặc số serial không đúng",
-			"charging.card.notmatch" => "Mệnh giá thẻ không khớp với giá trị đã chọn",
-			"charging.card.unknown" => "Không thể xác định thông tin thẻ",
-			"charging.card.invalid" => "Thẻ không hợp lệ hoặc đã bị khóa",
-			"charging.card.timeout" => "Quá thời gian xử lý thẻ, vui lòng thử lại sau",
-			"charging.card.provider_error" => "Lỗi từ nhà mạng, vui lòng thử lại sau",
-			"charging.pending" => "Thẻ đang được xử lý, vui lòng đợi",
-			"system.maintenance" => "Hệ thống đang bảo trì, vui lòng thử lại sau",
-
-			// Thêm các thông báo lỗi phổ biến khác
-			"charging.invalid_card_code" => "Mã thẻ không hợp lệ, vui lòng kiểm tra lại",
-			"charging.invalid_serial" => "Số serial không hợp lệ, vui lòng kiểm tra lại",
-			"charging.wrong_telco" => "Loại thẻ không đúng, vui lòng chọn đúng nhà mạng",
-			"charging.invalid_amount" => "Mệnh giá thẻ không đúng, vui lòng chọn đúng mệnh giá",
-			"charging.card.used" => "Thẻ đã được sử dụng trước đó",
-			"charging.invalid_partner" => "Lỗi xác thực đối tác thanh toán",
-			"charging.wrong_format" => "Định dạng thẻ không đúng",
-			"charging.invalid_sign" => "Lỗi xác thực chữ ký",
-			"charging.invalid_request" => "Yêu cầu không hợp lệ",
-			"charging.card.locked" => "Thẻ đã bị khóa hoặc tạm ngưng",
-			"charging.invalid_telco" => "Nhà mạng không được hỗ trợ",
-			"charging.telco_maintain" => "Nhà mạng đang bảo trì",
-
-			// Thông báo từ FormManager
-			"Vui lòng không để trống số sê-ri hoặc mã thẻ!" => "Vui lòng không để trống số sê-ri hoặc mã thẻ!",
-			"Có lỗi xảy ra khi xử lý biểu mẫu!" => "Có lỗi xảy ra khi xử lý biểu mẫu!",
-
-			// Các lỗi kết nối
-			"connection.failed" => "Không thể kết nối đến máy chủ thanh toán",
-			"connection.timeout" => "Kết nối đến máy chủ thanh toán quá thời gian chờ",
-
-			// Thông báo thành công
-			"payment.successful" => "Thẻ nạp thành công!",
-
-			// Thông báo mặc định
-			"default" => "Có lỗi xảy ra khi xử lý thẻ"
+			"charging.card_existed" => "This card has already been used.",
+			"charging.card.wrong" => "The card code or serial number is incorrect.",
+			"charging.card.notmatch" => "The card value does not match the selected amount.",
+			"charging.card.unknown" => "The card details could not be identified.",
+			"charging.card.invalid" => "The card is invalid or locked.",
+			"charging.card.timeout" => "The card request timed out. Try again later.",
+			"charging.card.provider_error" => "The provider returned an error. Try again later.",
+			"charging.pending" => "The card is still being processed.",
+			"system.maintenance" => "The provider is under maintenance. Try again later.",
+			"charging.invalid_card_code" => "The card code is invalid. Check it and try again.",
+			"charging.invalid_serial" => "The serial number is invalid. Check it and try again.",
+			"charging.wrong_telco" => "The card provider is incorrect.",
+			"charging.invalid_amount" => "The card amount is invalid.",
+			"charging.card.used" => "This card has already been used.",
+			"charging.invalid_partner" => "Payment partner authentication failed.",
+			"charging.wrong_format" => "The card format is invalid.",
+			"charging.invalid_sign" => "Signature validation failed.",
+			"charging.invalid_request" => "The request is invalid.",
+			"charging.card.locked" => "The card is locked or suspended.",
+			"charging.invalid_telco" => "This card provider is not supported.",
+			"charging.telco_maintain" => "The card provider is under maintenance.",
+			"Please enter both the serial number and card code." => "Please enter both the serial number and card code.",
+			"An error occurred while processing the form." => "An error occurred while processing the form.",
+			"connection.failed" => "Could not connect to the payment provider.",
+			"connection.timeout" => "The connection to the payment provider timed out.",
+			"payment.successful" => "The card was charged successfully.",
+			"default" => "An error occurred while processing the card."
 		];
 
-		// Trả về ngay nếu tìm thấy trong bản đồ lỗi
 		if (isset($errorMappings[$errorMessage])) {
 			return $errorMappings[$errorMessage];
 		}
 
-		// Xử lý các trường hợp đặc biệt - tìm theo tiền tố
 		foreach ($errorMappings as $errorKey => $friendlyMessage) {
-			// Kiểm tra nếu thông báo lỗi bắt đầu bằng một trong các mã đã biết
-			if (str_starts_with($errorMessage, $errorKey)) {
-				return $friendlyMessage;
-			}
-
-			// Kiểm tra nếu thông báo lỗi chứa mã lỗi này
-			if (stripos($errorMessage, $errorKey) !== false) {
+			if (str_starts_with($errorMessage, $errorKey) || stripos($errorMessage, $errorKey) !== false) {
 				return $friendlyMessage;
 			}
 		}
 
-		// Xử lý một số mẫu thông báo đặc biệt
 		if (stripos($errorMessage, "card_existed") !== false) {
-			return "Thẻ này đã được sử dụng trước đó";
+			return "This card has already been used.";
 		}
-
 		if (stripos($errorMessage, "wrong") !== false && stripos($errorMessage, "card") !== false) {
-			return "Thông tin thẻ không chính xác";
+			return "The card information is incorrect.";
 		}
-
 		if (stripos($errorMessage, "invalid") !== false && stripos($errorMessage, "code") !== false) {
-			return "Mã thẻ không hợp lệ";
+			return "The card code is invalid.";
 		}
-
 		if (stripos($errorMessage, "invalid") !== false && stripos($errorMessage, "serial") !== false) {
-			return "Số serial không hợp lệ";
+			return "The serial number is invalid.";
 		}
-
 		if (stripos($errorMessage, "timeout") !== false) {
-			return "Quá thời gian xử lý thẻ, vui lòng thử lại sau";
+			return "The card request timed out. Try again later.";
 		}
-
 		if (stripos($errorMessage, "maintain") !== false) {
-			return "Hệ thống đang bảo trì, vui lòng thử lại sau";
+			return "The provider is under maintenance. Try again later.";
 		}
 
-		// Unknown provider text may contain card details. Never echo it to players or logs.
-		return "Có lỗi xảy ra khi xử lý thẻ";
+		return "An error occurred while processing the card.";
 	}
 
-	/**
-	 * Định dạng thông báo lỗi với prefix
-	 */
+	/** Format an error message with the plugin prefix. */
 	public static function formatErrorMessage(string $errorMessage) : string {
-		$translatedMessage = self::translateErrorMessage($errorMessage);
-		return Constant::PREFIX . $translatedMessage;
+		return Constant::PREFIX . self::translateErrorMessage($errorMessage);
 	}
 
-	/**
-	 * Định dạng thông báo thành công với prefix
-	 */
+	/** Format a success message with the plugin prefix. */
 	public static function formatSuccessMessage(string $message) : string {
 		return Constant::PREFIX . $message;
 	}
 
-	/**
-	 * Định dạng thông báo thông tin với prefix
-	 */
+	/** Format an informational message with the plugin prefix. */
 	public static function formatInfoMessage(string $message) : string {
 		return Constant::PREFIX . $message;
 	}
 
-	/**
-	 * Định dạng thông báo số tiền
-	 */
+	/** Format a card amount. */
 	public static function formatAmount(int $amount) : string {
 		return number_format($amount, 0, ",", ".") . "₫";
 	}

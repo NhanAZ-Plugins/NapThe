@@ -10,13 +10,13 @@ use JsonSerializable;
  * Represents a card payment
  */
 class CardPayment implements JsonSerializable {
-	/** @var string Trạng thái thanh toán */
+	/** @var string Payment status. */
 	private string $status = PaymentStatus::PENDING;
 
-	/** @var string|null Lý do thất bại (nếu có) */
+	/** @var string|null Failure reason, when available. */
 	private ?string $failReason = null;
 
-	/** @var int|null Số tiền đã xử lý (nếu thành công) */
+	/** @var int|null Processed amount, when successful. */
 	private ?int $processedAmount = null;
 
 	/**

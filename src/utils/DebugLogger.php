@@ -30,7 +30,7 @@ use const PHP_EOL;
 class DebugLogger {
 	private static ?self $instance = null;
 
-	/** @var string Đường dẫn tới thư mục lưu log */
+	/** @var string Directory used for log files. */
 	private string $logsDir;
 
 	public function __construct(NapThe $plugin) {

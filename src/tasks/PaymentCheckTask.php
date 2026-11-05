@@ -24,12 +24,12 @@ class PaymentCheckTask extends Task {
 	 * Check payment statuses on each tick
 	 */
 	public function onRun() : void {
-		// Chỉ kiểm tra khi có thẻ đang chờ
+		// Only check while payments are pending.
 		if (!$this->paymentManager->hasPendingPayments()) {
 			return;
 		}
 
-		// Xử lý tất cả các thẻ đang chờ xử lý
+		// Process all pending payments.
 		$this->paymentManager->checkPendingPayments();
 	}
 }

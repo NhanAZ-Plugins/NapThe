@@ -57,7 +57,7 @@ final class TopNapTheForm {
 						$this->send($player, $currentPage - 1);
 					} else {
 						$this->plugin->debugLogger->log("TopNapThe form: Attempted to go to previous page while on first page", "form");
-						$player->sendTip("Đây là trang đầu tiên rồi.");
+						$player->sendTip("This is the first page.");
 						$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($player) : void {
 							if ($player->isOnline()) {
 								$this->plugin->debugLogger->log("TopNapThe form: Reopening first page after delay", "form");
@@ -73,7 +73,7 @@ final class TopNapTheForm {
 						$this->send($player, $currentPage + 1);
 					} else {
 						$this->plugin->debugLogger->log("TopNapThe form: Attempted to go to next page while on last page", "form");
-						$player->sendTip("Đây là trang cuối rồi.");
+						$player->sendTip("This is the last page.");
 						$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($player, $maxPage) : void {
 							if ($player->isOnline()) {
 								$this->plugin->debugLogger->log("TopNapThe form: Reopening last page after delay", "form");
@@ -100,8 +100,8 @@ final class TopNapTheForm {
 		if (empty($napTheData)) {
 			$this->plugin->debugLogger->log("TopNapThe form: No donation data found, showing empty message", "form");
 			return $form
-				->setTitle("Xếp Hạng Nạp Thẻ")
-				->setContent("Hiện chưa có một ai nạp thẻ ủng hộ máy chủ...");
+				->setTitle("Donation leaderboard")
+				->setContent("No donations have been recorded yet.");
 		}
 
 		arsort($napTheData);
@@ -130,28 +130,28 @@ final class TopNapTheForm {
 			if ($i >= $startIndex && $i < $startIndex + $itemsPerPage) {
 				$rank = $i + 1;
 				$formattedAmount = number_format($amountValue, 0, ",", ".");
-				$topList[] = "Hạng " . $rank . " - " . $playerName . "\n  Đã nạp: " . $formattedAmount . "₫\n";
+				$topList[] = "#" . $rank . " - " . $playerName . "\n  Donated: " . $formattedAmount . "₫\n";
 			}
 
 			$i++;
 		}
 
 		$formattedTotal = number_format($serverTotalNapThe, 0, ",", ".");
-		$content = "Danh sách những người chơi đóng góp nhiều nhất\nTrang " . $page . " / " . $maxPage . "\n\n";
+		$content = "Top donors\nPage " . $page . " / " . $maxPage . "\n\n";
 		$content .= implode("\n", $topList);
-		$content .= "\n\nTổng nạp từ người chơi: {$formattedTotal}₫";
+		$content .= "\n\nTotal donations: {$formattedTotal}₫";
 		
 		if ($playerRank !== null) {
-			$content .= "\nThứ hạng của bạn: " . $playerRank;
+			$content .= "\nYour rank: " . $playerRank;
 		} else {
-			$content .= "\nThứ hạng của bạn: Chưa có xếp hạng";
+			$content .= "\nYour rank: Unranked";
 		}
 
-		$form->setTitle("Top Nạp Thẻ");
+		$form->setTitle("Donation leaderboard");
 		$form->setContent($content);
-		$form->addButton("Trang Trước", -1, "", "prev")
-			->addButton("Trang Sau", -1, "", "next")
-			->addButton("Nhập Số Trang", -1, "", "goto");
+		$form->addButton("Previous", -1, "", "prev")
+			->addButton("Next", -1, "", "next")
+			->addButton("Go to page", -1, "", "goto");
 
 		return $form;
 	}
@@ -173,14 +173,14 @@ final class TopNapTheForm {
 			$this->plugin->debugLogger->log("GoToPage form: Player " . $player->getName() . " entered page: " . $pageInput, "form");
 
 			if (!is_numeric($pageInput)) {
-				$player->sendMessage("Vui lòng nhập một số hợp lệ.");
+				$player->sendMessage("Please enter a valid number.");
 				$this->send($player, $currentPage);
 				return;
 			}
 
 			$pageNumber = (int) $pageInput;
 			if ($pageNumber < 1 || $pageNumber > $maxPage) {
-				$player->sendMessage("Số trang phải từ 1 đến {$maxPage}.");
+				$player->sendMessage("The page must be between 1 and {$maxPage}.");
 				$this->send($player, $currentPage);
 				return;
 			}
@@ -189,8 +189,8 @@ final class TopNapTheForm {
 			$this->send($player, $pageNumber);
 		});
 
-		$form->setTitle("Chuyển Trang");
-		$form->addInput("Nhập số trang muốn đến (1 - " . $maxPage . ")", "Ví dụ: 2", "", "page");
+		$form->setTitle("Go to page");
+		$form->addInput("Page number (1 - " . $maxPage . ")", "Example: 2", "", "page");
 
 		$player->sendForm($form);
 	}

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace NapThe;
 
 /**
- * Các hằng số được sử dụng trong plugin.
+ * Constants used by the plugin.
  */
 class Constant {
-	/** Tiền tố plugin cho các thông báo */
-	public const PREFIX = "[Nạp Thẻ] ";
+	/** Prefix used for player-facing messages. */
+	public const PREFIX = "[NapThe] ";
 
 	/** Read API credentials from the server process environment. */
 	public static function partnerId() : string {
@@ -93,7 +93,7 @@ class Constant {
 		"Gate"
 	];
 
-	/** Không thay đổi giá trị của hằng này */
+	/** Keep these amounts unchanged for provider compatibility. */
 	public const AMOUNT = [
 		10000,
 		20000,

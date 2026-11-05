@@ -46,18 +46,18 @@ final class ErrorCode {
 	 */
 	public static function getMessage(int $code) : string {
 		return match ($code) {
-			self::NONE => "Không có lỗi",
-			self::GENERIC_ERROR => "Lỗi không xác định",
-			self::NETWORK_ERROR => "Lỗi kết nối mạng",
-			self::API_ERROR => "Lỗi API",
-			self::INVALID_CARD => "Thẻ không hợp lệ",
-			self::CONFIG_ERROR => "Lỗi cấu hình",
-			self::PERMISSION_ERROR => "Không có quyền",
-			self::DATABASE_ERROR => "Lỗi cơ sở dữ liệu",
-			self::INVALID_INPUT => "Dữ liệu nhập vào không hợp lệ",
-			self::SERVER_ERROR => "Lỗi máy chủ",
-			self::UNKNOWN_ERROR => "Lỗi không xác định",
-			default => "Mã lỗi không xác định: $code"
+			self::NONE => "No error",
+			self::GENERIC_ERROR => "Unknown error",
+			self::NETWORK_ERROR => "Network error",
+			self::API_ERROR => "API error",
+			self::INVALID_CARD => "Invalid card",
+			self::CONFIG_ERROR => "Configuration error",
+			self::PERMISSION_ERROR => "Permission denied",
+			self::DATABASE_ERROR => "Database error",
+			self::INVALID_INPUT => "Invalid input",
+			self::SERVER_ERROR => "Server error",
+			self::UNKNOWN_ERROR => "Unknown error",
+			default => "Unknown error code: $code"
 		};
 	}
 }
