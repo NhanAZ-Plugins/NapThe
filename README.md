@@ -20,7 +20,7 @@ The plugin sends `application/x-www-form-urlencoded` data over HTTPS with POST. 
 
 The `napthe` command opens the card submission form. The `topnapthe` command shows donation totals. Their permissions are `napthe.command.napthe` and `napthe.command.topnapthe`, respectively. Both default to enabled in `plugin.yml`.
 
-Install only in a disposable PocketMine-MP test server. [DevTools](https://github.com/NhanAZ/DevTools) builds and validates the plugin PHAR. The build includes the bundled FormAPI license notice through `devtools.yml`. A local PHAR passed structural inspection and booted without credentials. Both commands reported that payment was unavailable, and the server shut down normally. No live payment flow has been verified. Do not use this source with real cards until the payment safety work below is complete.
+Install only in a disposable PocketMine-MP test server. [DevTools](https://github.com/AxolotlBucketLabs/DevTools) builds and validates the plugin PHAR. The build includes the bundled FormAPI license notice through `devtools.yml`. A local PHAR passed structural inspection and booted without credentials. Both commands reported that payment was unavailable, and the server shut down normally. No live payment flow has been verified. Do not use this source with real cards until the payment safety work below is complete.
 
 ## Current verification limits
 
